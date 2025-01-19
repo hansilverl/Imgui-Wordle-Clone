@@ -17,7 +17,8 @@
 // - Introduction, links and more at the top of imgui.cpp
 
 #pragma once
-#include "imgui.h"      // IMGUI_IMPL_API
+//#include "imgui.h"      // IMGUI_IMPL_API
+#include "../imgui.h" 
 #ifndef IMGUI_DISABLE
 
 IMGUI_IMPL_API bool     ImGui_ImplWin32_Init(void* hwnd);
