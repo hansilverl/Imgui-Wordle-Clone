@@ -1,15 +1,18 @@
 #include <iostream>
 #include <thread>
 #include <string>
+#include <algorithm>
 #include "CommonObject.h"
 #include "DownloadThread.h"
 
 // Helper function to validate input
 bool isValidInput(const std::string& input) {
     if (input.length() != 5) return false;
+    // check is_word_in_list:
+
     return std::all_of(input.begin(), input.end(), [](char c) {
         return std::isalpha(c);
-        });
+    });
 }
 
 // Helper function to display the current game state
@@ -44,8 +47,8 @@ int main() {
 
     // Start the download thread
     auto download_thread = std::jthread([&](std::stop_token stoken) {
-        download(common);
-        });
+        download.initializeGame(common);
+    });
 
     // Wait for game initialization
     std::cout << "Initializing game...\n";
@@ -87,6 +90,9 @@ int main() {
         while (common.waiting_for_api) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
+
+        // Process the guess
+        download.processGuess(common);
 
         // Display current game state
         displayGameState(common);

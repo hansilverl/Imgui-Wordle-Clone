@@ -12,8 +12,6 @@
 class DownloadThread {
 public:
     void operator()(CommonObjects& common);
-
-private:
     void initializeGame(CommonObjects& common);
     void processGuess(CommonObjects& common);
 };

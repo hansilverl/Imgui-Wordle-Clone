@@ -61,7 +61,7 @@ void DownloadThread::processGuess(CommonObjects& common) {
             result.word = json_result["guess"].get<std::string>();
             result.is_valid_word = json_result["is_word_in_list"].get<bool>();
             result.is_correct = json_result["is_correct"].get<bool>();
-            if (result.is_valid_word) {
+            if (result.is_valid_word && !result.is_correct){
                 if (!json_result["character_info"].is_null()) {
                     for (size_t i = 0; i < 5; ++i) {
                         const auto& char_info = json_result["character_info"][i];
@@ -69,17 +69,13 @@ void DownloadThread::processGuess(CommonObjects& common) {
                         result.letter_states[i].in_word = char_info["scoring"]["in_word"].get<bool>();
                         result.letter_states[i].correct_position = char_info["scoring"]["correct_idx"].get<bool>();
                     }
-
-                    /*
-                    // print the result:
-                    std::cout << "Guess: " << result.word << std::endl;
-                    for (const auto& state : result.letter_states) {
-                        std::cout << "Letter: " << state.letter
-                                  << ", In Word: " << state.in_word
-                                  << ", Correct Position: " << state.correct_position
-                                  << std::endl;
-                    }*/
                 }
+
+                if (!result.is_valid_word) {
+					// notify the user that the word is not valid
+					std::cout << result.word << " - Not a valid word!\n";   
+					// we currently use cout, but soon will transition to a GUI, so we will have to change all of the couts
+				}
 
                 common.guess_history.push_back(result);
 
