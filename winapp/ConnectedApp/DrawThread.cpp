@@ -228,6 +228,32 @@ void DrawThread::RenderFrame() {
         }
     }
 
+    // Game over message in a popup
+    if (game_logic.isGameOver()) {
+        // Open the popup
+        ImGui::OpenPopup("Game Over");
+
+        // Center the popup
+        ImGui::SetNextWindowPos(ImVec2((windowSize.x - 300.0f) / 2.0f, (windowSize.y - 100.0f) / 2.0f), ImGuiCond_Always);
+
+        if (ImGui::BeginPopupModal("Game Over", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            // Display the message
+            ImGui::TextColored(
+                game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                game_logic.hasWon() ? "Congratulations! You've won!" :
+                ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
+            );
+
+            // Add a button to close the popup
+            if (ImGui::Button("OK", ImVec2(120, 40))) {
+                ImGui::CloseCurrentPopup();
+                PostQuitMessage(0);
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
     ImGui::End();
 
     // Render everything
