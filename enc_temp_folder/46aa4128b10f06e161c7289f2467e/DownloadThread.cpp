@@ -73,7 +73,7 @@ void DownloadThread::processGuess(CommonObjects& common) {
                 game_logic.notifyGuessProcessed(result);
             }
             else {
-                // TODO: replace notifyApi error with a on screen message and call to animation
+                // Handle invalid word
                 game_logic.notifyApiError("Invalid word: " + result.word);
             }
         }
