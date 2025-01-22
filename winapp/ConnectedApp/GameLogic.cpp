@@ -49,6 +49,8 @@ bool GameLogic::submitGuess(const std::string& guess) {
         return false;
     }
 
+    // The following block is scoped to ensure the mutex is locked only for the duration of the block.
+    // This helps in limiting the critical section and avoids holding the lock longer than necessary.
     {
         std::lock_guard<std::mutex> lock(mutex);
         if (common.waiting_for_api || common.game_over) {
