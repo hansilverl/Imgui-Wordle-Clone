@@ -1,22 +1,22 @@
 #include "DownloadThread.h"
 
 void DownloadThread::operator()(CommonObjects& common) {
-    // Initialize the game by getting today's answer
     try {
         initializeGame(common);
+        game_logic.notifyGameInitialized();
     }
     catch (const std::exception& e) {
-        std::cerr << "Error initializing game: " << e.what() << std::endl;
+        game_logic.notifyApiError(e.what());
         return;
     }
 
     while (!common.exit_flag) {
-        if (common.new_guess_available && !common.waiting_for_api) {
+        if (common.new_guess_available && common.waiting_for_api) {
             try {
                 processGuess(common);
             }
             catch (const std::exception& e) {
-                std::cerr << "Error processing guess: " << e.what() << std::endl;
+                game_logic.notifyApiError(e.what());
             }
             common.new_guess_available = false;
         }
@@ -48,20 +48,20 @@ void DownloadThread::initializeGame(CommonObjects& common) {
 }
 
 void DownloadThread::processGuess(CommonObjects& common) {
-    common.waiting_for_api = true;
-
     httplib::SSLClient cli("wordle-api-kappa.vercel.app");
     cli.enable_server_certificate_verification(false);
+
     auto res = cli.Post("/" + common.current_guess);
+
     if (res && res->status == 200) {
         try {
             auto json_result = nlohmann::json::parse(res->body);
-
             GuessResult result;
             result.word = json_result["guess"].get<std::string>();
             result.is_valid_word = json_result["is_word_in_list"].get<bool>();
             result.is_correct = json_result["is_correct"].get<bool>();
-            if (result.is_valid_word && !result.is_correct){
+
+            if (result.is_valid_word) {
                 if (!json_result["character_info"].is_null()) {
                     for (size_t i = 0; i < 5; ++i) {
                         const auto& char_info = json_result["character_info"][i];
@@ -70,33 +70,19 @@ void DownloadThread::processGuess(CommonObjects& common) {
                         result.letter_states[i].correct_position = char_info["scoring"]["correct_idx"].get<bool>();
                     }
                 }
-
-                if (!result.is_valid_word) {
-					// notify the user that the word is not valid
-					std::cout << result.word << " - Not a valid word!\n";   
-					// we currently use cout, but soon will transition to a GUI, so we will have to change all of the couts
-				}
-
-                common.guess_history.push_back(result);
-
-                if (result.is_correct) {
-                    common.game_won = true;
-                    common.game_over = true;
-                }
-                else if (common.guess_history.size() >= 6) {
-                    common.game_over = true;
-                }
+                game_logic.notifyGuessProcessed(result);
+            }
+            else {
+                // Handle invalid word
+                game_logic.notifyApiError("Invalid word: " + result.word);
             }
         }
         catch (const std::exception& e) {
-            std::cerr << "Error parsing JSON: " << e.what() << std::endl;
-            throw;
+            throw std::runtime_error("Error parsing API response: " + std::string(e.what()));
         }
     }
     else {
-        std::cerr << "Error processing guess: " << (res ? res->status : -1) << std::endl;
-        throw std::runtime_error("Failed to process guess");
+        throw std::runtime_error("Failed to process guess. Status: " +
+            std::to_string(res ? res->status : -1));
     }
-
-    common.waiting_for_api = false;
 }
