@@ -187,7 +187,7 @@ void DrawThread::RenderFrame() {
         "ZXCVBNM"
     };
 
-    ImGui::SetCursorPos(ImVec2(offsetX, offsetY + gridHeight + 80.0f));
+    ImGui::SetCursorPos(ImVec2(offsetX, offsetY + gridHeight + 70.0f));
     for (size_t i = 0; i < keyboardLayout.size(); i++) {
         float rowWidth = keyboardLayout[i].length() * (cellSize + spacing) - spacing;
         float rowOffsetX = (gridWidth - rowWidth) / 2.0f;
@@ -241,8 +241,7 @@ void DrawThread::RenderFrame() {
             ImGui::TextColored(
                 game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
                 game_logic.hasWon() ? "Congratulations! You've won!" :
-                ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
-            );
+                ("Game Over!"));
 
             // Add a button to close the popup
             if (ImGui::Button("OK", ImVec2(120, 40))) {
