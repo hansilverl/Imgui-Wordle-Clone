@@ -125,14 +125,9 @@ void DrawThread::RenderFrame() {
                 else
                     color = ImVec4(120.0f / 255.0f, 124.0f / 255.0f, 127.0f / 255.0f, 1.0f);
 
-                // Push hover style
                 ImGui::PushStyleColor(ImGuiCol_Button, color);
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // Grayish-white hover color
-
-                // Render the button
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
                 ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(cellSize, cellSize));
-
-                // Pop hover style
                 ImGui::PopStyleColor(2);
 
                 if (j < 4) ImGui::SameLine();
@@ -141,14 +136,9 @@ void DrawThread::RenderFrame() {
         else if (i == currentRow) {
             // Render current row (active input)
             for (size_t j = 0; j < 5; j++) {
-                // Push hover style
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark gray for default
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // Grayish-white hover color
-
-                // Render the button
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
                 ImGui::Button(currentGuess[j] == ' ' ? " " : std::string(1, currentGuess[j]).c_str(), ImVec2(cellSize, cellSize));
-
-                // Pop hover style
                 ImGui::PopStyleColor(2);
 
                 if (j < 4) ImGui::SameLine();
@@ -157,14 +147,9 @@ void DrawThread::RenderFrame() {
         else {
             // Render empty rows
             for (size_t j = 0; j < 5; j++) {
-                // Push hover style
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark gray for default
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // Grayish-white hover color
-
-                // Render the button
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
                 ImGui::Button(" ", ImVec2(cellSize, cellSize));
-
-                // Pop hover style
                 ImGui::PopStyleColor(2);
 
                 if (j < 4) ImGui::SameLine();
@@ -182,52 +167,70 @@ void DrawThread::RenderFrame() {
         }
     }
 
-    // Handle backspace
     if (ImGui::IsKeyPressed(ImGuiKey_Backspace) && currentCol > 0) {
         currentCol--;
         currentGuess[currentCol] = ' ';
     }
 
-    // Handle Enter
     if (ImGui::IsKeyPressed(ImGuiKey_Enter) && currentCol == 5) {
         if (game_logic.submitGuess(currentGuess)) {
-            currentGuess = std::string(5, ' '); // Reset the guess
+            currentGuess = std::string(5, ' ');
             currentCol = 0;
-            if (!showError) {
-                currentRow++; // Move to the next row
-            }
+            currentRow++;
         }
     }
 
-    // Game over message in a popup
-    if (game_logic.isGameOver()) {
-        // Open the popup
-        ImGui::OpenPopup("Game Over");
+    // Render the virtual keyboard
+    static const std::vector<std::string> keyboardLayout = {
+        "QWERTYUIOP",
+        "ASDFGHJKL",
+        "ZXCVBNM"
+    };
 
-        // Center the popup
-        ImGui::SetNextWindowPos(ImVec2((windowSize.x - 300.0f) / 2.0f, (windowSize.y - 100.0f) / 2.0f), ImGuiCond_Always);
+    ImGui::SetCursorPos(ImVec2(offsetX, offsetY + gridHeight + 80.0f));
+    for (size_t i = 0; i < keyboardLayout.size(); i++) {
+        float rowWidth = keyboardLayout[i].length() * (cellSize + spacing) - spacing;
+        float rowOffsetX = (gridWidth - rowWidth) / 2.0f;
+        ImGui::SetCursorPosX(offsetX + rowOffsetX);
 
-        if (ImGui::BeginPopupModal("Game Over", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-            // Display the message
-            ImGui::TextColored(
-                game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-                game_logic.hasWon() ? "Congratulations! You've won!" :
-                ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
-            );
-
-            // Add a button to close the popup
-            if (ImGui::Button("OK", ImVec2(120, 40))) {
-                ImGui::CloseCurrentPopup();
-                PostQuitMessage(0);
+        for (char key : keyboardLayout[i]) {
+            std::string label(1, key);
+            if (ImGui::Button(label.c_str(), ImVec2(cellSize, cellSize))) {
+                if (currentCol < 5 && currentRow < 6) {
+                    currentGuess[currentCol] = key;
+                    currentCol++;
+                }
             }
+            ImGui::SameLine();
+        }
+        ImGui::NewLine();
+    }
 
-            ImGui::EndPopup();
+    // Enter and Backspace buttons
+    float controlRowWidth = 2 * (2 * cellSize + spacing) - spacing;
+    float controlOffsetX = (gridWidth - controlRowWidth) / 2.0f;
+    ImGui::SetCursorPosX(offsetX + controlOffsetX);
+
+    if (ImGui::Button("Enter", ImVec2(2 * cellSize, cellSize))) {
+        if (currentCol == 5) {
+            if (game_logic.submitGuess(currentGuess)) {
+                currentGuess = std::string(5, ' ');
+                currentCol = 0;
+                currentRow++;
+            }
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Backspace", ImVec2(2 * cellSize, cellSize))) {
+        if (currentCol > 0) {
+            currentCol--;
+            currentGuess[currentCol] = ' ';
         }
     }
 
     ImGui::End();
 
-    // Rendering
+    // Render everything
     ImGui::Render();
     const float clear_color_with_alpha[4] = { 0.45f, 0.55f, 0.60f, 1.00f };
     g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
@@ -235,6 +238,7 @@ void DrawThread::RenderFrame() {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     g_pSwapChain->Present(1, 0);
 }
+
 
 
 // Implementation of D3D initialization methods
