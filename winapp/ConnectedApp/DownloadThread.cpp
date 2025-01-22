@@ -27,7 +27,7 @@ void DownloadThread::operator()(CommonObjects& common) {
 
 void DownloadThread::initializeGame(CommonObjects& common) {
     httplib::SSLClient cli("wordle-api-kappa.vercel.app");
-    cli.enable_server_certificate_verification(false); 
+    cli.enable_server_certificate_verification(false);
     auto res = cli.Get("/answer");
 
     if (res && res->status == 200) {
@@ -72,7 +72,7 @@ void DownloadThread::processGuess(CommonObjects& common) {
                 }
                 game_logic.notifyGuessProcessed(result);
             }
-          // TODO: result isn't valid, that's all we need, GameLogic will do the rest(amen)
+            // TODO: result isn't valid, that's all we need, GameLogic will do the rest(amen)
             game_logic.notifyGuessProcessed(result);
 
         }
