@@ -140,6 +140,7 @@
     <ClCompile Include="DownloadThread.cpp" />
     <ClCompile Include="DrawThread.cpp" />
     <ClCompile Include="GameLogic.cpp" />
+    <ClCompile Include="OnScreenKb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ImGuiLib\ImGuiLib.vcxproj">
@@ -154,6 +155,7 @@
     </ClInclude>
     <ClInclude Include="DrawThread.h" />
     <ClInclude Include="GameLogic.h" />
+    <ClInclude Include="OnScreenKb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
