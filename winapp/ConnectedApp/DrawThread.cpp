@@ -121,7 +121,7 @@ void DrawThread::RenderFrame() {
 
     // Input field
     if (!game_logic.isGameOver()) {
-        ImGui::SetNextItemWidth(200);
+        ImGui::SetNextItemWidth(200);   // temporary input text field
         if (ImGui::InputText("##input", inputBuffer, IM_ARRAYSIZE(inputBuffer),
             ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_EnterReturnsTrue)) {
             if (strlen(inputBuffer) == 5) {

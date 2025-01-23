@@ -1,4 +1,3 @@
-// GameLogic.cpp
 #include "GameLogic.h"
 #include <algorithm>
 #include <cctype>
@@ -26,6 +25,9 @@ void GameLogic::notifyGuessProcessed(const GuessResult& result) {
             else if (common.guess_history.size() >= 6) {
                 common.game_over = true;
             }
+        }
+        else {
+            notifyInvalidWord();
         }
         common.waiting_for_api = false;
     }
