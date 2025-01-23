@@ -72,9 +72,10 @@ void DownloadThread::processGuess(CommonObjects& common) {
                 }
                 game_logic.notifyGuessProcessed(result);
             }
-            // TODO: result isn't valid, that's all we need, GameLogic will do the rest(amen)
-            game_logic.notifyGuessProcessed(result);
-
+            else {
+                // TODO: replace notifyApi error with a on screen message and call to animation
+                game_logic.notifyApiError("Invalid word: " + result.word);
+            }
         }
         catch (const std::exception& e) {
             throw std::runtime_error("Error parsing API response: " + std::string(e.what()));
