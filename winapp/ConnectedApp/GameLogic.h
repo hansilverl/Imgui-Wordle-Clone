@@ -13,6 +13,7 @@ public:
     void notifyGameInitialized();
     void notifyGuessProcessed(const GuessResult& result);
     void notifyApiError(const std::string& error);
+    void notifyInvalidWord();   // for words not in word list
 
     // Interface for GUI/Input thread
     bool submitGuess(const std::string& guess);
@@ -25,6 +26,7 @@ public:
     // Register callbacks for GUI updates
     void setOnGameStateChanged(std::function<void()> callback);
     void setOnErrorOccurred(std::function<void(const std::string&)> callback);
+    void setOnInvalidWord(std::function<void()> callback); // New callback for invalid words
 
 private:
     CommonObjects& common;
@@ -33,8 +35,8 @@ private:
 
     std::function<void()> onGameStateChanged;
     std::function<void(const std::string&)> onErrorOccurred;
+    std::function<void()> onInvalidWord; // New callback for invalid words
 
-    bool validateGuess(const std::string& guess) const;
+    bool ValidLength(const std::string& guess) const;
     void notifyGameStateChanged();
 };
-

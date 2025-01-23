@@ -44,8 +44,19 @@ void GameLogic::notifyApiError(const std::string& error) {
     }
 }
 
+void GameLogic::notifyInvalidWord() {
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        common.waiting_for_api = false;
+    }
+    cv.notify_all();
+    if (onInvalidWord) {
+        onInvalidWord();
+    }
+}
+
 bool GameLogic::submitGuess(const std::string& guess) {
-    if (!validateGuess(guess)) {
+    if (!ValidLength(guess)) {
         return false;
     }
 
@@ -98,11 +109,14 @@ void GameLogic::setOnErrorOccurred(std::function<void(const std::string&)> callb
     onErrorOccurred = std::move(callback);
 }
 
-bool GameLogic::validateGuess(const std::string& guess) const {
+void GameLogic::setOnInvalidWord(std::function<void()> callback) {
+    std::lock_guard<std::mutex> lock(mutex);
+    onInvalidWord = std::move(callback);
+}
+
+bool GameLogic::ValidLength(const std::string& guess) const {
     if (guess.length() != 5) return false;
-    return std::all_of(guess.begin(), guess.end(), [](char c) {
-        return std::isalpha(c);
-        });
+    return true;
 }
 
 void GameLogic::notifyGameStateChanged() {

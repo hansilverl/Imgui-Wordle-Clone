@@ -24,7 +24,6 @@ void DownloadThread::operator()(CommonObjects& common) {
     }
 }
 
-
 void DownloadThread::initializeGame(CommonObjects& common) {
     httplib::SSLClient cli("wordle-api-kappa.vercel.app");
     cli.enable_server_certificate_verification(false);
@@ -73,8 +72,7 @@ void DownloadThread::processGuess(CommonObjects& common) {
                 game_logic.notifyGuessProcessed(result);
             }
             else {
-                // TODO: replace notifyApi error with a on screen message and call to animation
-                game_logic.notifyApiError("Invalid word: " + result.word);
+                game_logic.notifyInvalidWord();
             }
         }
         catch (const std::exception& e) {
