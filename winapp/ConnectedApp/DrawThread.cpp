@@ -36,6 +36,16 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
         errorMessage = error;
         showError = true;
         });
+
+    // Register invalid word callback
+    game_logic.setOnInvalidWord([this]() {
+        invalidWord = true;
+        });
+
+    // Register game state changed callback
+    game_logic.setOnGameStateChanged([this]() {
+        memset(inputBuffer, 0, sizeof(inputBuffer));
+        });
 }
 
 DrawThread::~DrawThread() {
@@ -125,8 +135,8 @@ void DrawThread::RenderFrame() {
         if (ImGui::InputText("##input", inputBuffer, IM_ARRAYSIZE(inputBuffer),
             ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_EnterReturnsTrue)) {
             if (strlen(inputBuffer) == 5) {
-                if (game_logic.submitGuess(inputBuffer)) {
-                    memset(inputBuffer, 0, sizeof(inputBuffer));
+                if (!game_logic.submitGuess(inputBuffer)) {
+                    invalidWord = true;
                 }
             }
         }
@@ -149,6 +159,20 @@ void DrawThread::RenderFrame() {
 
     if (ImGui::BeginPopupModal("Error", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("%s", errorMessage.c_str());
+        if (ImGui::Button("OK")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+    // TODO: CHANGE TO ANIMATION
+    // Invalid word message
+    if (invalidWord) {
+        ImGui::OpenPopup("Invalid Word");
+        invalidWord = false;
+    }
+
+    if (ImGui::BeginPopupModal("Invalid Word", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Invalid word. Please try again.");
         if (ImGui::Button("OK")) {
             ImGui::CloseCurrentPopup();
         }

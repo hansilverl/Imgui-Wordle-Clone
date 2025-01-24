@@ -37,6 +37,7 @@ private:
     char inputBuffer[6] = "";
     std::string errorMessage;
     bool showError = false;
+    bool invalidWord = false;
 
     static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };
