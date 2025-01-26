@@ -96,14 +96,14 @@ void DrawThread::RenderFrame() {
         for (const auto& letter : guess.letter_states) {
             ImVec4 color;
             if (letter.correct_position)
-                color = ImVec4(108.0f / 255.0f, 169.0f / 255.0f, 101.0f / 255.0f, 1.0f);
+                color = ImVec4(108.0f / 255.0f, 169.0f / 255.0f, 101.0f / 255.0f, 1.0f); // Green
             else if (letter.in_word)
                 color = ImVec4(200.0f / 255.0f, 182.0f / 255.0f, 83.0f / 255.0f, 1.0f); // Yellow
             else
                 color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)); 
+			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // coloured cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
             ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(80, 80)); 
             ImGui::PopStyleVar();
@@ -117,16 +117,17 @@ void DrawThread::RenderFrame() {
     size_t currentRow = history.size();
     if (!game_logic.isGameOver() && currentRow < 6) {
         for (size_t i = 0; i < 5; ++i) {
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Black border
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button(aka empty square)
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
             if (i < strlen(inputBuffer)) {
-                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(80, 80)); 
+                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(80, 80)); // Adjust button size to match Wordle proportions
             }
             else {
-                ImGui::Button(" ", ImVec2(80, 80)); 
+                ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
             }
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor();
+            ImGui::PopStyleColor(2);
             ImGui::SameLine();
         }
         ImGui::NewLine();
@@ -136,11 +137,12 @@ void DrawThread::RenderFrame() {
     // Fill remaining rows with empty squares
     for (size_t i = currentRow; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)); // Black border
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
             ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor();
+            ImGui::PopStyleColor(2);
             ImGui::SameLine();
         }
         ImGui::NewLine();
@@ -190,7 +192,7 @@ void DrawThread::RenderFrame() {
         }
         ImGui::EndPopup();
     }
-    // TODO: CHANGE TO ANIMATION
+
     // Invalid word message
     if (invalidWord) {
         ImGui::OpenPopup("Invalid Word");
