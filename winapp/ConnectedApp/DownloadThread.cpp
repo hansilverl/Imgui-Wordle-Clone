@@ -65,7 +65,6 @@ void DownloadThread::processGuess(CommonObjects& common) {
                     for (size_t i = 0; i < 5; ++i) {
                         const auto& char_info = json_result["character_info"][i];
                         result.letter_states[i].letter = char_info["char"].get<std::string>()[0];
-                        result.letter_states[i].in_word = char_info["scoring"]["in_word"].get<bool>();
                         result.letter_states[i].correct_position = char_info["scoring"]["correct_idx"].get<bool>();
                     }
                 }

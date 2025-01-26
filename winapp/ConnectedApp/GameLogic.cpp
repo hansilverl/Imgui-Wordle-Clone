@@ -8,6 +8,17 @@ void GameLogic::notifyGameInitialized() {
     {
         std::lock_guard<std::mutex> lock(mutex);
         common.game_initialized = true;
+        // Initialize letter occurrences
+        for (size_t i = 0; i < common.current_answer.size(); ++i) {
+            char letter = common.current_answer[i];
+            if (common.letter_occurrences.find(letter) == common.letter_occurrences.end()) {
+                common.letter_occurrences[letter] = LetterOccurrence{ 1, {static_cast<int>(i)} };
+            }
+            else {
+                common.letter_occurrences[letter].count++;
+                common.letter_occurrences[letter].positions.push_back(i);
+            }
+        }
     }
     notifyGameStateChanged();
 }
@@ -16,6 +27,7 @@ void GameLogic::notifyGuessProcessed(const GuessResult& result) {
     {
         std::lock_guard<std::mutex> lock(mutex);
         if (result.is_valid_word) {
+            updateLetterStates(const_cast<GuessResult&>(result));
             common.guess_history.push_back(result);
 
             if (result.is_correct) {
@@ -123,5 +135,34 @@ bool GameLogic::ValidLength(const std::string& guess) const {
 void GameLogic::notifyGameStateChanged() {
     if (onGameStateChanged) {
         onGameStateChanged();
+    }
+}
+
+void GameLogic::updateLetterStates(GuessResult& result) const {
+    std::unordered_map<char, int> letter_counts;
+    for (const auto& letter : result.letter_states) {
+        if (letter.correct_position) {
+            letter_counts[letter.letter]++;
+        }
+    }
+
+    for (auto& letter : result.letter_states) {
+        if (letter.correct_position) continue;
+
+        char l = letter.letter;
+        if (common.letter_occurrences.find(l) != common.letter_occurrences.end()) {
+            int occurrences = common.letter_occurrences[l].count;
+            int used_count = letter_counts[l];
+            if (used_count < occurrences) {
+                letter.in_word = true;
+                letter_counts[l]++;
+            }
+            else {
+                letter.in_word = false;
+            }
+        }
+        else {
+            letter.in_word = false;
+        }
     }
 }

@@ -31,6 +31,7 @@ public:
 private:
     bool ValidLength(const std::string& guess) const;
     void notifyGameStateChanged();
+    void updateLetterStates(GuessResult& result) const;
 
     CommonObjects& common;
     mutable std::mutex mutex;
