@@ -9,7 +9,7 @@ void GameLogic::notifyGameInitialized() {
         std::lock_guard<std::mutex> lock(mutex);
         common.game_initialized = true;
         // Initialize letter occurrences
-        for (size_t i = 0; i < common.current_answer.size(); ++i) {
+        for (int i = 0; i < common.current_answer.size(); ++i) {
             char letter = common.current_answer[i];
             if (common.letter_occurrences.find(letter) == common.letter_occurrences.end()) {
                 common.letter_occurrences[letter] = LetterOccurrence{ 1, {static_cast<int>(i)} };

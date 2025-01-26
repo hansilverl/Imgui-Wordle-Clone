@@ -22,7 +22,7 @@ struct GuessResult {
 
 // Represents the state of a letter in the word
 struct LetterOccurrence {
-    int count; // Number of occurrences in the word
+    int count = 0; // Number of occurrences in the word
     std::vector<int> positions; // Positions of the letter in the word
 };
 
