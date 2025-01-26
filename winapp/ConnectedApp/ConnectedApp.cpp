@@ -2,7 +2,7 @@
 #include <thread>
 #include <string>
 #include <algorithm>
-#include "CommonObject.h"
+#include "CommonObjects.h"
 #include "DownloadThread.h"
 #include "GameLogic.h"
 #include "DrawThread.h"

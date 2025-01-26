@@ -6,7 +6,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
-#include "CommonObject.h"
+#include "CommonObjects.h"
 
 class GameLogic {
 public:
