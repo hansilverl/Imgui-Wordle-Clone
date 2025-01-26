@@ -109,12 +109,12 @@ void DrawThread::RenderFrame() {
                 color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
-			ImGui::PushStyleColor(ImGuiCol_Border, color); // coloured cell border
+            ImGui::PushStyleColor(ImGuiCol_Border, color); // colored cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
-            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(80, 80)); 
+            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(80, 80));
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine();
+            ImGui::SameLine(0, 10); // Adjusted the second parameter to change the spacing
         }
         ImGui::NewLine();
     }
@@ -123,7 +123,7 @@ void DrawThread::RenderFrame() {
     size_t currentRow = history.size();
     if (!game_logic.isGameOver() && currentRow < 6) {
         for (size_t i = 0; i < 5; ++i) {
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button(aka empty square)
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button (aka empty square)
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
@@ -134,7 +134,7 @@ void DrawThread::RenderFrame() {
             }
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine();
+            ImGui::SameLine(0, 10); // Adjust the second parameter to change the spacing
         }
         ImGui::NewLine();
         currentRow++;
@@ -149,7 +149,7 @@ void DrawThread::RenderFrame() {
             ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine();
+            ImGui::SameLine(0, 10); // Adjust the second parameter to change the spacing
         }
         ImGui::NewLine();
     }
