@@ -38,6 +38,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // background color  #121213
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f);
 
     // Register error callback
     game_logic.setOnErrorOccurred([this](const std::string& error) {
@@ -88,9 +89,10 @@ void DrawThread::RenderFrame() {
     ImVec2 displaySize = ImGui::GetIO().DisplaySize;
 
     // Calculate the position and size for the game board
-    ImVec2 boardSize(500, 600); // Adjust the size to match Wordle proportions
+    ImVec2 boardSize(400, 480); // Adjusted the size to make room for the onscreen keyboard
     ImVec2 boardPos((displaySize.x - boardSize.x) * 0.5f, 50); // Center the board horizontally and position it vertically
 
+    float rowSpacing = 4.f;
     // Draw the game board
     ImGui::SetNextWindowPos(boardPos);
     ImGui::SetNextWindowSize(boardSize);
@@ -111,12 +113,13 @@ void DrawThread::RenderFrame() {
             ImGui::PushStyleColor(ImGuiCol_Button, color);
             ImGui::PushStyleColor(ImGuiCol_Border, color); // colored cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
-            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(80, 80));
+            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60)); 
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine(0, 10); // Adjusted the second parameter to change the spacing
+            ImGui::SameLine(0, 8); 
         }
         ImGui::NewLine();
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
     }
 
     // Fill remaining rows with empty squares or current input
@@ -127,16 +130,17 @@ void DrawThread::RenderFrame() {
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
-                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(80, 80)); // Adjust button size to match Wordle proportions
+                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(60, 60)); 
             }
             else {
-                ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
+                ImGui::Button(" ", ImVec2(60, 60)); 
             }
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine(0, 10); // Adjust the second parameter to change the spacing
+            ImGui::SameLine(0, 8); 
         }
         ImGui::NewLine();
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
         currentRow++;
     }
 
@@ -146,11 +150,12 @@ void DrawThread::RenderFrame() {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // empty cells border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
-            ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
+            ImGui::Button(" ", ImVec2(60, 60)); // Adjust button size to fit the new board size
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine(0, 10); // Adjust the second parameter to change the spacing
+            ImGui::SameLine(0, 8); // Adjust the second parameter to change the spacing
         }
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
         ImGui::NewLine();
     }
 
@@ -221,7 +226,6 @@ void DrawThread::RenderFrame() {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     g_pSwapChain->Present(1, 0);
 }
-
 // Implementation of D3D initialization methods
 bool DrawThread::CreateDeviceD3D() {
     DXGI_SWAP_CHAIN_DESC sd;
