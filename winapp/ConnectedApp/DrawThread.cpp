@@ -7,16 +7,16 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ::RegisterClassEx(&wc);
     hwnd = ::CreateWindow(wc.lpszClassName, _T("Wordle"), WS_OVERLAPPEDWINDOW, 100, 100, 800, 800, NULL, NULL, wc.hInstance, NULL);
 
+    // Maximize the window
+    ::ShowWindow(hwnd, SW_MAXIMIZE);
+    ::UpdateWindow(hwnd);
+
     // Initialize Direct3D
     if (!CreateDeviceD3D()) {
         CleanupDeviceD3D();
         ::UnregisterClass(wc.lpszClassName, wc.hInstance);
         throw std::runtime_error("Failed to initialize Direct3D");
     }
-
-    // Show the window
-    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(hwnd);
 
     // Setup ImGui context
     IMGUI_CHECKVERSION();
@@ -30,6 +30,8 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
 
     // Setup style
     ImGui::StyleColorsDark();
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // background color  #121213
 
     // Register error callback
     game_logic.setOnErrorOccurred([this](const std::string& error) {
@@ -76,13 +78,17 @@ void DrawThread::RenderFrame() {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // Create main window
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-    ImGui::Begin("Wordle", nullptr,
-        ImGuiWindowFlags_NoDecoration |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoSavedSettings);
+    // Get the size of the display
+    ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+
+    // Calculate the position and size for the game board
+    ImVec2 boardSize(500, 600); // Adjust the size to match Wordle proportions
+    ImVec2 boardPos((displaySize.x - boardSize.x) * 0.5f, 50); // Center the board horizontally and position it vertically
+
+    // Draw the game board
+    ImGui::SetNextWindowPos(boardPos);
+    ImGui::SetNextWindowSize(boardSize);
+    ImGui::Begin("##GameBoard", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
 
     // Game grid
     const auto& history = game_logic.getGuessHistory();
@@ -94,11 +100,14 @@ void DrawThread::RenderFrame() {
             else if (letter.in_word)
                 color = ImVec4(200.0f / 255.0f, 182.0f / 255.0f, 83.0f / 255.0f, 1.0f); // Yellow
             else
-                color = ImVec4(120.0f / 255.0f, 124.0f / 255.0f, 127.0f / 255.0f, 1.0f); // Gray
+                color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
-            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(40, 40));
-            ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)); 
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(80, 80)); 
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor(2);
             ImGui::SameLine();
         }
         ImGui::NewLine();
@@ -108,12 +117,16 @@ void DrawThread::RenderFrame() {
     size_t currentRow = history.size();
     if (!game_logic.isGameOver() && currentRow < 6) {
         for (size_t i = 0; i < 5; ++i) {
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Black border
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
             if (i < strlen(inputBuffer)) {
-                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(40, 40));
+                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(80, 80)); 
             }
             else {
-                ImGui::Button(" ", ImVec2(40, 40));
+                ImGui::Button(" ", ImVec2(80, 80)); 
             }
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor();
             ImGui::SameLine();
         }
         ImGui::NewLine();
@@ -123,32 +136,45 @@ void DrawThread::RenderFrame() {
     // Fill remaining rows with empty squares
     for (size_t i = currentRow; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
-            ImGui::Button(" ", ImVec2(40, 40));
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)); // Black border
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
+            ImGui::PopStyleVar();
+            ImGui::PopStyleColor();
             ImGui::SameLine();
         }
         ImGui::NewLine();
     }
 
+    ImGui::End();
+
     // Input field
     if (!game_logic.isGameOver()) {
+        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 20));
+        ImGui::SetNextWindowSize(ImVec2(300, 50));
+        ImGui::Begin("##InputField", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
         ImGui::SetNextItemWidth(200);   // temporary input text field
-        if (ImGui::InputText("##input", inputBuffer, IM_ARRAYSIZE(inputBuffer),
-            ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if (ImGui::InputText("##input", inputBuffer, IM_ARRAYSIZE(inputBuffer), ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_EnterReturnsTrue)) {
             if (strlen(inputBuffer) == 5) {
                 if (!game_logic.submitGuess(inputBuffer)) {
                     invalidWord = true;
                 }
             }
         }
+        ImGui::End();
     }
 
     // Game over message
     if (game_logic.isGameOver()) {
+        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 80));
+        ImGui::SetNextWindowSize(ImVec2(300, 50));
+        ImGui::Begin("##GameOver", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
         ImGui::TextColored(
             game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
             game_logic.hasWon() ? "Congratulations! You've won!" :
             ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
         );
+        ImGui::End();
     }
 
     // Error popup
@@ -179,11 +205,9 @@ void DrawThread::RenderFrame() {
         ImGui::EndPopup();
     }
 
-    ImGui::End();
-
     // Rendering
     ImGui::Render();
-    const float clear_color_with_alpha[4] = { 0.45f, 0.55f, 0.60f, 1.00f };
+    const float clear_color_with_alpha[4] = { 0.07f, 0.07f, 0.08f, 1.00f }; // Background color #121213
     g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
     g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
