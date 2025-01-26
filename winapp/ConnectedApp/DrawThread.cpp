@@ -28,6 +28,12 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
+    const char* fontPath = "../../assets/HelveticaNeue Bold.ttf";
+
+    ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath, 49.0f);
+    IM_ASSERT(font != nullptr);
+
+
     // Setup style
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
