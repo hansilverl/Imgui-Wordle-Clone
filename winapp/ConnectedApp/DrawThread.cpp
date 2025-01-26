@@ -96,15 +96,15 @@ void DrawThread::RenderFrame() {
         for (const auto& letter : guess.letter_states) {
             ImVec4 color;
             if (letter.correct_position)
-                color = ImVec4(108.0f / 255.0f, 169.0f / 255.0f, 101.0f / 255.0f, 1.0f); // Green
+                color = ImVec4(83.0f / 255.0f, 141.0f / 255.0f, 78.0f / 255.0f, 1.0f); // Green
             else if (letter.in_word)
-                color = ImVec4(200.0f / 255.0f, 182.0f / 255.0f, 83.0f / 255.0f, 1.0f); // Yellow
+                color = ImVec4(181.0f / 255.0f, 159.0f / 255.0f, 59.0f / 255.0f, 1.0f); // Yellow
             else
                 color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
-			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // coloured cell border
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+			ImGui::PushStyleColor(ImGuiCol_Border, color); // coloured cell border
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(80, 80)); 
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
@@ -119,7 +119,7 @@ void DrawThread::RenderFrame() {
         for (size_t i = 0; i < 5; ++i) {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button(aka empty square)
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // active cell border
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
                 ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(80, 80)); // Adjust button size to match Wordle proportions
             }
@@ -138,8 +138,8 @@ void DrawThread::RenderFrame() {
     for (size_t i = currentRow; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // cell border
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // empty cells border
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(" ", ImVec2(80, 80)); // Adjust button size to match Wordle proportions
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
