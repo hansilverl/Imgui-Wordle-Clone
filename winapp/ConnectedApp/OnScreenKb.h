@@ -10,10 +10,11 @@
 
 class OnScreenKeyboard {
 public:
-	void Render(char* inputBuffer, bool& invalidWord, GameLogic& game_logic, ImVec2 boardSize);
+    void Render(char* inputBuffer, bool& invalidWord, GameLogic& game_logic, ImVec2 boardSize);
 
 private:
     void RenderRow(const char* keys, char* inputBuffer, bool& invalidWord, GameLogic& game_logic);
+    void RenderEnterButton(char* inputBuffer, bool& invalidWord, GameLogic& game_logic);
 };
 
 #endif // ONSCREENKB_H

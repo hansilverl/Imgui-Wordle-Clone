@@ -32,6 +32,9 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath, 49.0f);
     IM_ASSERT(font != nullptr);
 
+    // Add a smaller font for the "Enter" button
+    io.Fonts->AddFontFromFileTTF(fontPath, 24.0f);
+
     // Setup style
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
