@@ -29,15 +29,13 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
     const char* fontPath = "../../assets/HelveticaNeue Bold.ttf";
-
     ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath, 49.0f);
     IM_ASSERT(font != nullptr);
-
 
     // Setup style
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
-    colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // background color  #121213
+    colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // Background color #121213
     colors[ImGuiCol_ButtonHovered] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f);
 
     // Register error callback
@@ -111,12 +109,12 @@ void DrawThread::RenderFrame() {
                 color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
-            ImGui::PushStyleColor(ImGuiCol_Border, color); // colored cell border
+            ImGui::PushStyleColor(ImGuiCol_Border, color); // Colored cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
-            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60)); 
+            ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60));
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine(0, 8); 
+            ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
@@ -127,17 +125,17 @@ void DrawThread::RenderFrame() {
     if (!game_logic.isGameOver() && currentRow < 6) {
         for (size_t i = 0; i < 5; ++i) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button (aka empty square)
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // active cell border
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
-                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(60, 60)); 
+                ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(60, 60));
             }
             else {
-                ImGui::Button(" ", ImVec2(60, 60)); 
+                ImGui::Button(" ", ImVec2(60, 60));
             }
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(2);
-            ImGui::SameLine(0, 8); 
+            ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
@@ -148,7 +146,7 @@ void DrawThread::RenderFrame() {
     for (size_t i = currentRow; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // empty cells border
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Empty cells border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(" ", ImVec2(60, 60)); // Adjust button size to fit the new board size
             ImGui::PopStyleVar();
@@ -161,20 +159,27 @@ void DrawThread::RenderFrame() {
 
     ImGui::End();
 
-    // Input field
-    if (!game_logic.isGameOver()) {
-        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 20));
-        ImGui::SetNextWindowSize(ImVec2(300, 50));
-        ImGui::Begin("##InputField", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
-        ImGui::SetNextItemWidth(200);   // temporary input text field
-        if (ImGui::InputText("##input", inputBuffer, IM_ARRAYSIZE(inputBuffer), ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_EnterReturnsTrue)) {
-            if (strlen(inputBuffer) == 5) {
-                if (!game_logic.submitGuess(inputBuffer)) {
-                    invalidWord = true;
-                }
+    // Handle keyboard input
+    if (!game_logic.isGameOver())
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey_Backspace) && strlen(inputBuffer) > 0)
+        {
+            inputBuffer[strlen(inputBuffer) - 1] = '\0';
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_Enter) && strlen(inputBuffer) == 5)
+        {
+            if (!game_logic.submitGuess(inputBuffer))
+            {
+                invalidWord = true;
             }
         }
-        ImGui::End();
+        for (int i = ImGuiKey_A; i <= ImGuiKey_Z; ++i)
+        {
+            if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(i)) && strlen(inputBuffer) < 5)
+            {
+                inputBuffer[strlen(inputBuffer)] = static_cast<char>(i - ImGuiKey_A + 'A');
+            }
+        }
     }
 
     // Game over message
@@ -226,6 +231,7 @@ void DrawThread::RenderFrame() {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     g_pSwapChain->Present(1, 0);
 }
+
 // Implementation of D3D initialization methods
 bool DrawThread::CreateDeviceD3D() {
     DXGI_SWAP_CHAIN_DESC sd;
