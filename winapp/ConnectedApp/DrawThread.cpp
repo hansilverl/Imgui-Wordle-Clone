@@ -160,32 +160,81 @@ void DrawThread::RenderFrame() {
     ImGui::End();
 
     // Handle keyboard input
-    if (!game_logic.isGameOver())
-    {
-        if (ImGui::IsKeyPressed(ImGuiKey_Backspace) && strlen(inputBuffer) > 0)
-        {
+    if (!game_logic.isGameOver()) {
+        if (ImGui::IsKeyPressed(ImGuiKey_Backspace) && strlen(inputBuffer) > 0) {
             inputBuffer[strlen(inputBuffer) - 1] = '\0';
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_Enter) && strlen(inputBuffer) == 5)
-        {
-            if (!game_logic.submitGuess(inputBuffer))
-            {
+        if (ImGui::IsKeyPressed(ImGuiKey_Enter) && strlen(inputBuffer) == 5) {
+            if (!game_logic.submitGuess(inputBuffer)) {
                 invalidWord = true;
             }
         }
-        for (int i = ImGuiKey_A; i <= ImGuiKey_Z; ++i)
-        {
-            if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(i)) && strlen(inputBuffer) < 5)
-            {
+        for (int i = ImGuiKey_A; i <= ImGuiKey_Z; ++i) {
+            if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(i)) && strlen(inputBuffer) < 5) {
                 inputBuffer[strlen(inputBuffer)] = static_cast<char>(i - ImGuiKey_A + 'A');
             }
         }
     }
 
+    // Draw the on-screen keyboard
+    ImGui::SetNextWindowPos(ImVec2((displaySize.x - 600) * 0.5f, boardPos.y + boardSize.y));
+    //ImGui::SetNextWindowSize(ImVec2(700, 250));
+    ImGui::Begin("##OnScreenKeyboard", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
+
+    const char* keys1 = "QWERTYUIOP";
+    const char* keys2 = "ASDFGHJKL";
+    const char* keys3 = "ZXCVBNM";
+
+    // First row
+    for (int i = 0; i < strlen(keys1); ++i) {
+        if (ImGui::Button(std::string(1, keys1[i]).c_str(), ImVec2(50, 50))) {
+            if (strlen(inputBuffer) < 5) {
+                inputBuffer[strlen(inputBuffer)] = keys1[i];
+            }
+        }
+        if (i < strlen(keys1) - 1) ImGui::SameLine();
+    }
+    // Second row
+    ImGui::Dummy(ImVec2(25, 0)); // Add some padding to center the row
+    ImGui::SameLine();
+    for (int i = 0; i < strlen(keys2); ++i) {
+        if (ImGui::Button(std::string(1, keys2[i]).c_str(), ImVec2(50, 50))) {
+            if (strlen(inputBuffer) < 5) {
+                inputBuffer[strlen(inputBuffer)] = keys2[i];
+            }
+        }
+        if (i < strlen(keys2) - 1) ImGui::SameLine();
+    }
+    // Third row
+    if (ImGui::Button("ENTER", ImVec2(100, 50))) {
+        if (strlen(inputBuffer) == 5) {
+            if (!game_logic.submitGuess(inputBuffer)) {
+                invalidWord = true;
+            }
+        }
+    }
+    ImGui::SameLine();
+    for (int i = 0; i < strlen(keys3); ++i) {
+        if (ImGui::Button(std::string(1, keys3[i]).c_str(), ImVec2(50, 50))) {
+            if (strlen(inputBuffer) < 5) {
+                inputBuffer[strlen(inputBuffer)] = keys3[i];
+            }
+        }
+        if (i < strlen(keys3) - 1) ImGui::SameLine();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("BACKSPACE", ImVec2(100, 50))) {
+        if (strlen(inputBuffer) > 0) {
+            inputBuffer[strlen(inputBuffer) - 1] = '\0';
+        }
+    }
+
+    ImGui::End();
+
     // Game over message
     if (game_logic.isGameOver()) {
         ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 80));
-        ImGui::SetNextWindowSize(ImVec2(300, 50));
+        //ImGui::SetNextWindowSize(ImVec2(300, 50));    
         ImGui::Begin("##GameOver", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
         ImGui::TextColored(
             game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
@@ -231,6 +280,7 @@ void DrawThread::RenderFrame() {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     g_pSwapChain->Present(1, 0);
 }
+
 
 // Implementation of D3D initialization methods
 bool DrawThread::CreateDeviceD3D() {
