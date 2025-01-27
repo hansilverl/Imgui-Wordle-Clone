@@ -20,6 +20,12 @@ struct GuessResult {
     std::array<LetterState, 5> letter_states;
 };
 
+// Represents the state of a letter in the word
+struct LetterOccurrence {
+    int count = 0; // Number of occurrences in the word
+    std::vector<int> positions; // Positions of the letter in the word
+};
+
 struct CommonObjects {
     // Control flags
     std::atomic_bool exit_flag = false;
@@ -37,4 +43,7 @@ struct CommonObjects {
 
     // Current guess handling
     std::string current_guess;
+
+    // Letter occurrences
+    std::unordered_map<char, LetterOccurrence> letter_occurrences;
 };

@@ -24,10 +24,9 @@ void DownloadThread::operator()(CommonObjects& common) {
     }
 }
 
-
 void DownloadThread::initializeGame(CommonObjects& common) {
     httplib::SSLClient cli("wordle-api-kappa.vercel.app");
-    cli.enable_server_certificate_verification(false); 
+    cli.enable_server_certificate_verification(false);
     auto res = cli.Get("/answer");
 
     if (res && res->status == 200) {
@@ -60,21 +59,26 @@ void DownloadThread::processGuess(CommonObjects& common) {
             result.word = json_result["guess"].get<std::string>();
             result.is_valid_word = json_result["is_word_in_list"].get<bool>();
             result.is_correct = json_result["is_correct"].get<bool>();
-
+            if (result.is_correct) {
+                // Handle the case where the guess is correct - just input word back in 
+                for (size_t i = 0; i < 5; ++i) {
+                    result.letter_states[i].letter = result.word[i];
+                    result.letter_states[i].correct_position = true;
+                    result.letter_states[i].in_word = true;
+                }
+            }
             if (result.is_valid_word) {
                 if (!json_result["character_info"].is_null()) {
                     for (size_t i = 0; i < 5; ++i) {
                         const auto& char_info = json_result["character_info"][i];
                         result.letter_states[i].letter = char_info["char"].get<std::string>()[0];
-                        result.letter_states[i].in_word = char_info["scoring"]["in_word"].get<bool>();
                         result.letter_states[i].correct_position = char_info["scoring"]["correct_idx"].get<bool>();
                     }
                 }
                 game_logic.notifyGuessProcessed(result);
             }
             else {
-                // TODO: replace notifyApi error with a on screen message and call to animation
-                game_logic.notifyApiError("Invalid word: " + result.word);
+                game_logic.notifyInvalidWord();
             }
         }
         catch (const std::exception& e) {

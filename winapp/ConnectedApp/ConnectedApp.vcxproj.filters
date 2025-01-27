@@ -32,7 +32,7 @@
     <ClInclude Include="DrawThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommonObject.h">
+    <ClInclude Include="CommonObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
