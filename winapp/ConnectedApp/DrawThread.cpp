@@ -1,4 +1,5 @@
 #include "DrawThread.h"
+#include "ScoreBoard.h"
 #include <stdexcept>
 
 DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
@@ -159,6 +160,38 @@ void DrawThread::RenderFrame() {
 
     ImGui::End();
 
+    if (ImGui::Button("View Scoreboard")) {
+        showScoreboard = true;
+    }
+
+    // Scoreboard popup
+    if (showScoreboard) {
+        ImGui::OpenPopup("Scoreboard");
+    }
+
+    if (ImGui::BeginPopupModal("Scoreboard", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Scoreboard:");
+        ImGui::Separator();
+
+        // Fetch and display scores
+        try {
+            auto scores = scoreManager.getScores();
+            for (const auto& entry : scores) {
+                ImGui::Text("%s - %d", entry.name.c_str(), entry.score);
+            }
+        }
+        catch (const std::exception& e) {
+            ImGui::Text("Error loading scores: %s", e.what());
+        }
+
+        if (ImGui::Button("Close")) {
+            ImGui::CloseCurrentPopup();
+            showScoreboard = false;
+        }
+        ImGui::EndPopup();
+    }
+
+
     // Handle keyboard input
     if (!game_logic.isGameOver()) {
         if (ImGui::IsKeyPressed(ImGuiKey_Backspace) && strlen(inputBuffer) > 0) {
@@ -233,15 +266,30 @@ void DrawThread::RenderFrame() {
 
     // Game over message
     if (game_logic.isGameOver()) {
-        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 80));
-        //ImGui::SetNextWindowSize(ImVec2(300, 50));    
-        ImGui::Begin("##GameOver", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
-        ImGui::TextColored(
-            game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-            game_logic.hasWon() ? "Congratulations! You've won!" :
-            ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
-        );
-        ImGui::End();
+        if (!showNamePopup) {
+            showNamePopup = true;
+        }
+
+        // Show popup for player name
+        ImGui::OpenPopup("Game Over!");
+        if (ImGui::BeginPopupModal("Game Over!", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Enter your name:");
+            ImGui::InputText("##PlayerName", playerName, IM_ARRAYSIZE(playerName));
+
+            if (ImGui::Button("Submit")) {
+                // Save score
+                int score = game_logic.getGuessHistory().size(); // Assuming guess count is the score
+                scoreManager.addScore(playerName, score);
+                ImGui::CloseCurrentPopup();
+                showNamePopup = false;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                ImGui::CloseCurrentPopup();
+                showNamePopup = false;
+            }
+            ImGui::EndPopup();
+        }
     }
 
     // Error popup

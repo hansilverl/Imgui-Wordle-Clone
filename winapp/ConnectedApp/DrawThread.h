@@ -8,6 +8,8 @@
 #include "../../shared/ImGuiSrc/backends/imgui_impl_dx11.h"
 #include "GameLogic.h"
 #include <memory>
+#include "ScoreBoard.h"
+
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -26,6 +28,11 @@ private:
     ID3D11DeviceContext* g_pd3dDeviceContext;
     IDXGISwapChain* g_pSwapChain;
     ID3D11RenderTargetView* g_mainRenderTargetView;
+
+    ScoreBoard scoreManager{ "scores.txt" };
+    bool showScoreboard = false; // Flag to toggle scoreboard popup
+    bool showNamePopup = false;
+    char playerName[32] = ""; // To hold the player's name
 
     bool CreateDeviceD3D();
     void CleanupDeviceD3D();
