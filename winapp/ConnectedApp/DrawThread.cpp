@@ -90,7 +90,7 @@ void DrawThread::RenderFrame() {
 
     // Calculate the position and size for the game board
     ImVec2 boardSize(400, 480); // Adjusted the size to make room for the onscreen keyboard
-    ImVec2 boardPos((displaySize.x - boardSize.x) * 0.5f, 50); // Center the board horizontally and position it vertically
+    ImVec2 boardPos((displaySize.x - boardSize.x) * 0.5f, 80); // Center the board horizontally and position it vertically
 
     float rowSpacing = 4.f;
     // Draw the game board
