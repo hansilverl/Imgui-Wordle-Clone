@@ -8,7 +8,12 @@
 #include "../../shared/ImGuiSrc/backends/imgui_impl_win32.h"
 #include "../../shared/ImGuiSrc/backends/imgui_impl_dx11.h"
 
-void RenderOnScreenKeyboard(float offsetX, float offsetY, float gridWidth, float gridHeight, float cellSize, float spacing,
-    std::string& currentGuess, size_t& currentCol, size_t& currentRow, GameLogic& game_logic);
+class OnScreenKeyboard {
+public:
+	void Render(char* inputBuffer, bool& invalidWord, GameLogic& game_logic, ImVec2 boardSize);
+
+private:
+    void RenderRow(const char* keys, char* inputBuffer, bool& invalidWord, GameLogic& game_logic);
+};
 
 #endif // ONSCREENKB_H

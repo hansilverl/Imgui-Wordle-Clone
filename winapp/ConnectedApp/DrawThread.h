@@ -1,4 +1,3 @@
-// DrawThread.h
 #pragma once
 #include <windows.h>
 #include <d3d11.h>
@@ -7,6 +6,7 @@
 #include "../../shared/ImGuiSrc/backends/imgui_impl_win32.h"
 #include "../../shared/ImGuiSrc/backends/imgui_impl_dx11.h"
 #include "GameLogic.h"
+#include "OnScreenKb.h"
 #include <memory>
 
 // Forward declare message handler from imgui_impl_win32.cpp
@@ -26,6 +26,7 @@ private:
     ID3D11DeviceContext* g_pd3dDeviceContext;
     IDXGISwapChain* g_pSwapChain;
     ID3D11RenderTargetView* g_mainRenderTargetView;
+    OnScreenKeyboard onScreenKb;
 
     bool CreateDeviceD3D();
     void CleanupDeviceD3D();
