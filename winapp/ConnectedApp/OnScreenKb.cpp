@@ -16,7 +16,7 @@ void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& g
     const char* keys2 = "ASDFGHJKL";
     const char* keys3 = "ZXCVBNM";
 
-    ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f, boardSize.y + 20));
+    ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 560) * 0.5f, boardSize.y + 20));
     ImGui::Begin("##OnScreenKeyboard", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
 
     // Set button style
@@ -35,7 +35,7 @@ void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& g
     RenderRow(keys3, inputBuffer, invalidWord, game_logic);
     ImGui::SameLine(0, 6.0f);
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[3]);
-    if (ImGui::Button("⌫", ImVec2(100, 60))) { // Unicode Backspace character
+    if (ImGui::Button("⌫", ImVec2(75, 60))) { // Unicode Backspace character
         size_t len = strlen(inputBuffer);
         if (len > 0) {
             size_t char_len = utf8_char_length(inputBuffer, len);
@@ -60,14 +60,14 @@ void OnScreenKeyboard::RenderRow(const char* keys, char* inputBuffer, bool& inva
                 inputBuffer[strlen(inputBuffer) + 1] = '\0';
             }
         }
-        if (i < strlen(keys) - 1) ImGui::SameLine(0, 6.0f); // Adjust the second parameter to change the spacing
+        if (i < strlen(keys) - 1) ImGui::SameLine(0, 6.0f); // Adjusted the second parameter to change the spacing
     }
     ImGui::PopFont();
 }
 
 void OnScreenKeyboard::RenderEnterButton(char* inputBuffer, bool& invalidWord, GameLogic& game_logic) {
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]); // Use a smaller font for the "Enter" button
-    if (ImGui::Button("ENTER", ImVec2(100, 60))) {
+    if (ImGui::Button("ENTER", ImVec2(70, 60))) {
         if (strlen(inputBuffer) == 5) {
             if (!game_logic.submitGuess(inputBuffer)) {
                 invalidWord = true;
