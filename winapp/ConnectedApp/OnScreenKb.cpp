@@ -1,16 +1,6 @@
 ﻿#include "OnScreenKb.h"
 #include "GameLogic.h"
 
-// Helper function to determine the length of the last UTF-8 character
-size_t utf8_char_length(const char* str, size_t len) {
-    if (len == 0) return 0;
-    size_t char_len = 1;
-    while (char_len <= 4 && (str[len - char_len] & 0xC0) == 0x80) {
-        char_len++;
-    }
-    return char_len;
-}
-
 void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& game_logic, ImVec2 boardSize) {
     const char* keys1 = "QWERTYUIOP";
     const char* keys2 = "ASDFGHJKL";
@@ -37,9 +27,8 @@ void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& g
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[3]);
     if (ImGui::Button("⌫", ImVec2(75, 60))) { // Unicode Backspace character
         size_t len = strlen(inputBuffer);
-        if (len > 0) {
-            size_t char_len = utf8_char_length(inputBuffer, len);
-            inputBuffer[len - char_len] = '\0';
+        if (strlen(inputBuffer) > 0) {
+            inputBuffer[strlen(inputBuffer) - 1] = '\0';
         }
     }
     ImGui::PopFont();
