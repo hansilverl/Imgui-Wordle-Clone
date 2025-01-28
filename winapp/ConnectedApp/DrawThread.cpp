@@ -32,8 +32,13 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath, 49.0f);
     IM_ASSERT(font != nullptr);
 
+    // medium font for Keyboard:
+    io.Fonts->AddFontFromFileTTF(fontPath, 25.0f);
     // Add a smaller font for the "Enter" button
-    io.Fonts->AddFontFromFileTTF(fontPath, 24.0f);
+    io.Fonts->AddFontFromFileTTF(fontPath, 14.0f);
+    //Backspace font
+    io.Fonts->AddFontFromFileTTF("../../assets/FontAwesome.ttf",24.0f);
+
 
     // Setup style
     ImGui::StyleColorsDark();
