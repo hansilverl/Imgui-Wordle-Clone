@@ -1,4 +1,5 @@
 #include "ScoreBoard.h"
+#include "Colors.h"
 
 ScoreBoard::ScoreBoard(const std::string& filePath) : filePath(filePath) {}
 
@@ -38,4 +39,38 @@ std::vector<ScoreEntry> ScoreBoard::loadFromFile() const {
         }
     }
     return scores;
+}
+
+void ScoreBoard::renderHighScoresButton(ImVec2 displaySize) {
+    ImGui::SetNextWindowPos(ImVec2(displaySize.x - 150, 20));
+    ImGui::Begin("##HighScores", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[4]);
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
+
+    if (ImGui::Button("k")) { // k represents the score icon in our customized font
+        showScores = true;
+    }
+    ImGui::PopStyleColor(3); // Restore previous style
+    ImGui::PopFont();
+    ImGui::End();
+}
+
+void ScoreBoard::renderHighScoresPopup() {
+    if (showScores) {
+        ImGui::OpenPopup("High Scores");
+        showScores = false;
+    }
+
+    if (ImGui::BeginPopupModal("High Scores", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        auto scores = getScores();
+        for (const auto& score : scores) {
+            ImGui::Text("%s: %d", score.name.c_str(), score.score);
+        }
+        if (ImGui::Button("Close")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
 }
