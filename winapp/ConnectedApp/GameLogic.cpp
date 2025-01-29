@@ -26,6 +26,7 @@ void GameLogic::notifyGameInitialized() {
 void GameLogic::notifyGuessProcessed(const GuessResult& result) {
     {
         std::lock_guard<std::mutex> lock(mutex);
+        common.waiting_for_api = false;
         if (result.is_valid_word) {
             updateLetterStates(const_cast<GuessResult&>(result));
             common.guess_history.push_back(result);
@@ -41,7 +42,6 @@ void GameLogic::notifyGuessProcessed(const GuessResult& result) {
         else {
             notifyInvalidWord();
         }
-        common.waiting_for_api = false;
     }
     cv.notify_all();
     notifyGameStateChanged();
@@ -167,6 +167,7 @@ void GameLogic::updateLetterStates(GuessResult& result) const {
     }
 }
 
+// inspired by https://www.haibane.info/2022/01/12/a-simple-scoring-scheme-for-wordle/
 int GameLogic::calculateScore() const { //The const keyword ensures that the function does not modify any member variables of the GameLogic class.
     int totalScore = 0;
     const auto& history = getGuessHistory();

@@ -41,8 +41,8 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf", 23.0f);
 
     // Setup style
-    ImGui::StyleColorsDark();
-    ImVec4* colors = ImGui::GetStyle().Colors;
+	ImGui::StyleColorsDark();  
+	ImVec4* colors = ImGui::GetStyle().Colors;  // returns an array of colors
     colors[ImGuiCol_WindowBg] = BACKGROUND_COLOR; 
 
     // Register error callback
@@ -56,7 +56,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
         invalidWord = true;
         });
 
-    // Register game state changed callback
+	// Register game state changed callback to clear the input buffer
     game_logic.setOnGameStateChanged([this]() {
         memset(inputBuffer, 0, sizeof(inputBuffer));
         });
@@ -124,7 +124,7 @@ void DrawThread::RenderFrame() {
             ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60));
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(4);
-            ImGui::SameLine(0, 8);
+            ImGui::SameLine(0, 8); 
         }
         ImGui::NewLine();
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
@@ -288,6 +288,7 @@ void DrawThread::CreateRenderTarget() {
 void DrawThread::CleanupRenderTarget() {
     if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
 }
+
 
 LRESULT WINAPI DrawThread::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
