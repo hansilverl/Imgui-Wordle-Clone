@@ -10,7 +10,7 @@ void ScoreBoard::addScore(const std::string& name, int score) {
 }
 
 std::vector<ScoreEntry> ScoreBoard::getScores() const {
-    return loadFromFile();
+    auto scores = loadFromFile();
 }
 
 void ScoreBoard::saveToFile(const std::vector<ScoreEntry>& scores) const {
