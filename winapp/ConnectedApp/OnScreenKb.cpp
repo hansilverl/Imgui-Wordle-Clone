@@ -1,5 +1,38 @@
-﻿#include "OnScreenKb.h"
-#include "GameLogic.h"
+﻿// OnScreenKb.cpp
+#include "OnScreenKb.h"
+
+
+ImVec4 OnScreenKeyboard::GetKeyColor(char key, const GameLogic& game_logic) const {
+    bool found_green = false;
+    bool found_yellow = false;
+    bool found_wrong = false;
+
+    // Check all guesses
+    const auto& history = game_logic.getGuessHistory();
+    for (const auto& guess : history) {
+        for (const auto& letter : guess.letter_states) {
+            if (letter.letter == key) {
+                if (letter.correct_position) {
+                    found_green = true;
+                    break; // Green is the highest priority, we can stop checking
+                }
+                else if (letter.in_word) {
+                    found_yellow = true;
+                }
+                else {
+                    found_wrong = true;
+                }
+            }
+        }
+        if (found_green) break; // Exit outer loop if we found green
+    }
+
+    // Return the highest priority color
+    if (found_green) return GREEN_COLOR;
+    if (found_yellow) return YELLOW_COLOR;
+    if (found_wrong) return WRONG_COLOR;
+    return DEFAULT_COLOR;
+}
 
 void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& game_logic, ImVec2 boardSize) {
     const char* keys1 = "QWERTYUIOP";
@@ -10,13 +43,10 @@ void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& g
     ImGui::Begin("##OnScreenKeyboard", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
 
     // Set button style
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f); // Round buttons
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Grey color
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 1.0f)); // Slightly lighter grey when hovered
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f)); // Slightly darker grey when active
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
 
     RenderRow(keys1, inputBuffer, invalidWord, game_logic);
-    ImGui::Dummy(ImVec2(25, 0)); // Add some padding to center the row
+    ImGui::Dummy(ImVec2(25, 0));    // Add some padding to center the row
     ImGui::SameLine(0, 6.0f);
     RenderRow(keys2, inputBuffer, invalidWord, game_logic);
 
@@ -24,38 +54,53 @@ void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& g
     ImGui::SameLine(0, 6.0f);
     RenderRow(keys3, inputBuffer, invalidWord, game_logic);
     ImGui::SameLine(0, 6.0f);
+
+    // Handle backspace button - using default color
+    ImGui::PushStyleColor(ImGuiCol_Button, DEFAULT_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[3]);
-    if (ImGui::Button("x", ImVec2(75, 60))) { // this maps to backspace in our custom font
-        size_t len = strlen(inputBuffer);
+    if (ImGui::Button("x", ImVec2(75, 60))) {   // x maps to backspace in our custom font
         if (strlen(inputBuffer) > 0) {
             inputBuffer[strlen(inputBuffer) - 1] = '\0';
         }
     }
     ImGui::PopFont();
-
     // Restore button style
-    ImGui::PopStyleColor(3);
-    ImGui::PopStyleVar();
 
+    ImGui::PopStyleColor(3);    
+
+    ImGui::PopStyleVar();   // 
     ImGui::End();
 }
 
 void OnScreenKeyboard::RenderRow(const char* keys, char* inputBuffer, bool& invalidWord, GameLogic& game_logic) {
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     for (int i = 0; i < strlen(keys); ++i) {
+        ImVec4 keyColor = GetKeyColor(keys[i], game_logic);
+        ImGui::PushStyleColor(ImGuiCol_Button, keyColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, keyColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, keyColor);
+
         if (ImGui::Button(std::string(1, keys[i]).c_str(), ImVec2(45, 60))) {
             if (strlen(inputBuffer) < 5) {
                 inputBuffer[strlen(inputBuffer)] = keys[i];
                 inputBuffer[strlen(inputBuffer) + 1] = '\0';
             }
         }
-        if (i < strlen(keys) - 1) ImGui::SameLine(0, 6.0f); // Adjusted the second parameter to change the spacing
+        ImGui::PopStyleColor(3);
+        // If not the last key in row , add spacing between buttons
+        if (i < strlen(keys) - 1) ImGui::SameLine(0, 6.0f);
     }
     ImGui::PopFont();
 }
 
 void OnScreenKeyboard::RenderEnterButton(char* inputBuffer, bool& invalidWord, GameLogic& game_logic) {
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]); // Use a smaller font for the "Enter" button
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[2]);    // Use a smaller font for the "Enter" button
+    ImGui::PushStyleColor(ImGuiCol_Button, DEFAULT_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+
     if (ImGui::Button("ENTER", ImVec2(70, 60))) {
         if (strlen(inputBuffer) == 5) {
             if (!game_logic.submitGuess(inputBuffer)) {
@@ -63,5 +108,7 @@ void OnScreenKeyboard::RenderEnterButton(char* inputBuffer, bool& invalidWord, G
             }
         }
     }
+
+	ImGui::PopStyleColor(3);  
     ImGui::PopFont();
 }
