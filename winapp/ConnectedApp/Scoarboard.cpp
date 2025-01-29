@@ -1,5 +1,6 @@
 #include "ScoreBoard.h"
 #include "Colors.h"
+#include <algorithm>
 
 ScoreBoard::ScoreBoard(const std::string& filePath) : filePath(filePath) {}
 
@@ -10,7 +11,7 @@ void ScoreBoard::addScore(const std::string& name, int score) {
 }
 
 std::vector<ScoreEntry> ScoreBoard::getScores() const {
-    auto scores = loadFromFile();
+    return loadFromFile();
 }
 
 void ScoreBoard::saveToFile(const std::vector<ScoreEntry>& scores) const {
@@ -64,10 +65,21 @@ void ScoreBoard::renderHighScoresPopup() {
     }
 
     if (ImGui::BeginPopupModal("High Scores", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f)); // Dark background
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark border
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // White text
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // Use the medium font
+
         auto scores = getScores();
+        ImGui::Separator();
+
         for (const auto& score : scores) {
-            ImGui::Text("%s: %d", score.name.c_str(), score.score);
+            ImGui::Text("%s", score.name.c_str());
         }
+
+        ImGui::PopFont();
+        ImGui::PopStyleColor(3); // Restore previous styles
+
         if (ImGui::Button("Close")) {
             ImGui::CloseCurrentPopup();
         }

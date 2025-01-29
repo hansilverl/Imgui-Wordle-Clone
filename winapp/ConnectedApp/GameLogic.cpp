@@ -171,7 +171,7 @@ void GameLogic::updateLetterStates(GuessResult& result) const {
 int GameLogic::calculateScore() const { //The const keyword ensures that the function does not modify any member variables of the GameLogic class.
     int totalScore = 0;
     const auto& history = getGuessHistory();
-    for (size_t row = 0; row < history.size(); ++row) {
+    for (int row = 0; row < static_cast<int>(history.size()); ++row) {
         const auto& guess = history[row];
         int rowScore = 0;
         for (const auto& letter : guess.letter_states) {

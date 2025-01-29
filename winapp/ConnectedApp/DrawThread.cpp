@@ -246,7 +246,7 @@ void DrawThread::RenderFrame() {
     if (ImGui::BeginPopupModal("Enter Name", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::InputText("Name", userName, IM_ARRAYSIZE(userName));
         if (ImGui::Button("OK")) {
-            scoreBoard.addScore(std::string(userName), history.size());
+            scoreBoard.addScore(std::string(userName), static_cast<int>(history.size()));
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
