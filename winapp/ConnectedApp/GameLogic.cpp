@@ -166,3 +166,25 @@ void GameLogic::updateLetterStates(GuessResult& result) const {
         }
     }
 }
+
+int GameLogic::calculateScore() const { //The const keyword ensures that the function does not modify any member variables of the GameLogic class.
+    int totalScore = 0;
+    const auto& history = getGuessHistory();
+    for (size_t row = 0; row < history.size(); ++row) {
+        const auto& guess = history[row];
+        int rowScore = 0;
+        for (const auto& letter : guess.letter_states) {
+            if (letter.correct_position) {
+                rowScore += 0; // Green
+            }
+            else if (letter.in_word) {
+                rowScore += 1; // Yellow
+            }
+            else {
+                rowScore += 2; // Black
+            }
+        }
+        totalScore += rowScore * (row + 1);
+    }
+    return totalScore;
+}

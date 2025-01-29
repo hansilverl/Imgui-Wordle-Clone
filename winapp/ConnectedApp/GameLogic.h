@@ -33,6 +33,8 @@ private:
     void notifyGameStateChanged();
     void updateLetterStates(GuessResult& result) const;
 
+    int calculateScore() const;
+
     CommonObjects& common;
     mutable std::mutex mutex;
     std::condition_variable cv;
