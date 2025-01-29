@@ -1,5 +1,6 @@
 #include "DrawThread.h"
 #include <stdexcept>
+#include "Colors.h"
 
 DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     // Create application window
@@ -37,14 +38,12 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     // Add a smaller font for the "Enter" button
     io.Fonts->AddFontFromFileTTF(fontPath, 14.0f);
     //Backspace font
-    io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf",23.0f);
-
+    io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf", 23.0f);
 
     // Setup style
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
-    colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // Background color #121213
-
+    colors[ImGuiCol_WindowBg] = BACKGROUND_COLOR; 
 
     // Register error callback
     game_logic.setOnErrorOccurred([this](const std::string& error) {
@@ -62,6 +61,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
         memset(inputBuffer, 0, sizeof(inputBuffer));
         });
 }
+
 
 DrawThread::~DrawThread() {
     ImGui_ImplDX11_Shutdown();
@@ -110,11 +110,11 @@ void DrawThread::RenderFrame() {
         for (const auto& letter : guess.letter_states) {
             ImVec4 color;
             if (letter.correct_position)
-                color = ImVec4(83.0f / 255.0f, 141.0f / 255.0f, 78.0f / 255.0f, 1.0f); // Green
+                color = GREEN_COLOR; // Use the defined green color
             else if (letter.in_word)
-                color = ImVec4(181.0f / 255.0f, 159.0f / 255.0f, 59.0f / 255.0f, 1.0f); // Yellow
+                color = YELLOW_COLOR; // Use the defined yellow color
             else
-                color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
+                color = WRONG_COLOR; // Use the defined gray color
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color); // Make hover the same color
@@ -137,7 +137,7 @@ void DrawThread::RenderFrame() {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button (aka empty square)
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Active cell border
+            ImGui::PushStyleColor(ImGuiCol_Border, WRONG_COLOR); // Active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
                 ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(60, 60));
@@ -160,7 +160,7 @@ void DrawThread::RenderFrame() {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Empty cells border
+            ImGui::PushStyleColor(ImGuiCol_Border, WRONG_COLOR); // Empty cells border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(" ", ImVec2(60, 60)); // Adjust button size to fit the new board size
             ImGui::PopStyleVar();
@@ -198,7 +198,7 @@ void DrawThread::RenderFrame() {
         ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 80));
         ImGui::Begin("##GameOver", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
         ImGui::TextColored(
-            game_logic.hasWon() ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+            game_logic.hasWon() ? GREEN_COLOR : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
             game_logic.hasWon() ? "Congratulations! You've won!" :
             ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
         );
@@ -235,7 +235,7 @@ void DrawThread::RenderFrame() {
 
     // Rendering
     ImGui::Render();
-    const float clear_color_with_alpha[4] = { 0.07f, 0.07f, 0.08f, 1.00f }; // Background color #121213
+    const float clear_color_with_alpha[4] = { BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w }; // Background color
     g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
     g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
