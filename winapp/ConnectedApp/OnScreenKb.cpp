@@ -25,7 +25,7 @@ void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& g
     RenderRow(keys3, inputBuffer, invalidWord, game_logic);
     ImGui::SameLine(0, 6.0f);
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[3]);
-    if (ImGui::Button("⌫", ImVec2(75, 60))) { // Unicode Backspace character
+    if (ImGui::Button("x", ImVec2(75, 60))) { // this maps to backspace in our custom font
         size_t len = strlen(inputBuffer);
         if (strlen(inputBuffer) > 0) {
             inputBuffer[strlen(inputBuffer) - 1] = '\0';

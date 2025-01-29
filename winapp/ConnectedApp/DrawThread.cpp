@@ -37,7 +37,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     // Add a smaller font for the "Enter" button
     io.Fonts->AddFontFromFileTTF(fontPath, 14.0f);
     //Backspace font
-    io.Fonts->AddFontFromFileTTF("../../assets/FontAwesome.ttf",24.0f);
+    io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf",23.0f);
 
 
     // Setup style
