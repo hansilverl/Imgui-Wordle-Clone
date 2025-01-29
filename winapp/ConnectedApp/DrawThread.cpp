@@ -39,6 +39,8 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic), scoreBoard("scores
     io.Fonts->AddFontFromFileTTF(fontPath, 14.0f);
     // Backspace font
     io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf", 23.0f);
+    // High Score font
+    io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf", 49.0f);
 
     // Setup style
     ImGui::StyleColorsDark();
@@ -253,9 +255,17 @@ void DrawThread::RenderFrame() {
     // High scores button
     ImGui::SetNextWindowPos(ImVec2(displaySize.x - 150, 20));
     ImGui::Begin("##HighScores", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
-    if (ImGui::Button("High Scores")) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[4]);
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
+
+    if (ImGui::Button("k")){    // k represents the score icon in our customized font
         showScores = true;
     }
+    ImGui::PopStyleColor(3); // Restore previous style
+
+    ImGui::PopFont();
     ImGui::End();
 
     // High scores popup
