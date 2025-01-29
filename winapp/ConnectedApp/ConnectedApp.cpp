@@ -6,6 +6,7 @@
 #include "DownloadThread.h"
 #include "GameLogic.h"
 #include "DrawThread.h"
+#include "Scoreboard.h"
 
 int main() {
     CommonObjects common;

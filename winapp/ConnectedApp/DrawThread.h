@@ -8,6 +8,8 @@
 #include "GameLogic.h"
 #include "OnScreenKb.h"
 #include <memory>
+#include "ScoreBoard.h"
+
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -27,6 +29,11 @@ private:
     IDXGISwapChain* g_pSwapChain;
     ID3D11RenderTargetView* g_mainRenderTargetView;
     OnScreenKeyboard onScreenKb;
+
+    ScoreBoard scoreManager{ "scores.txt" };
+    bool showScoreboard = false; // Flag to toggle scoreboard popup
+    bool showNamePopup = false;
+    char playerName[32] = ""; // To hold the player's name
 
     bool CreateDeviceD3D();
     void CleanupDeviceD3D();
