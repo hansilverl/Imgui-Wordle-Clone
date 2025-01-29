@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "Colors.h"
 
-DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
+DrawThread::DrawThread(GameLogic& logic) : game_logic(logic), scoreBoard("scores.txt") {
     // Create application window
     wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Wordle"), NULL };
     ::RegisterClassEx(&wc);
@@ -33,17 +33,17 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath, 49.0f);
     IM_ASSERT(font != nullptr);
 
-    // medium font for Keyboard:
+    // Medium font for Keyboard
     io.Fonts->AddFontFromFileTTF(fontPath, 25.0f);
     // Add a smaller font for the "Enter" button
     io.Fonts->AddFontFromFileTTF(fontPath, 14.0f);
-    //Backspace font
+    // Backspace font
     io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf", 23.0f);
 
     // Setup style
-	ImGui::StyleColorsDark();  
-	ImVec4* colors = ImGui::GetStyle().Colors;  // returns an array of colors
-    colors[ImGuiCol_WindowBg] = BACKGROUND_COLOR; 
+    ImGui::StyleColorsDark();
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_WindowBg] = BACKGROUND_COLOR;
 
     // Register error callback
     game_logic.setOnErrorOccurred([this](const std::string& error) {
@@ -56,12 +56,14 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
         invalidWord = true;
         });
 
-	// Register game state changed callback to clear the input buffer
+    // Register game state changed callback
     game_logic.setOnGameStateChanged([this]() {
         memset(inputBuffer, 0, sizeof(inputBuffer));
+        if (game_logic.hasWon()) {
+            showNamePopup = true;
+        }
         });
 }
-
 
 DrawThread::~DrawThread() {
     ImGui_ImplDX11_Shutdown();
@@ -124,7 +126,7 @@ void DrawThread::RenderFrame() {
             ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60));
             ImGui::PopStyleVar();
             ImGui::PopStyleColor(4);
-            ImGui::SameLine(0, 8); 
+            ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
@@ -233,6 +235,46 @@ void DrawThread::RenderFrame() {
         ImGui::EndPopup();
     }
 
+    // Ask for the user's name if the game is won
+    if (showNamePopup) {
+        ImGui::OpenPopup("Enter Name");
+        showNamePopup = false;
+    }
+
+    if (ImGui::BeginPopupModal("Enter Name", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::InputText("Name", userName, IM_ARRAYSIZE(userName));
+        if (ImGui::Button("OK")) {
+            scoreBoard.addScore(std::string(userName), history.size());
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    // High scores button
+    ImGui::SetNextWindowPos(ImVec2(displaySize.x - 150, 20));
+    ImGui::Begin("##HighScores", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
+    if (ImGui::Button("High Scores")) {
+        showScores = true;
+    }
+    ImGui::End();
+
+    // High scores popup
+    if (showScores) {
+        ImGui::OpenPopup("High Scores");
+        showScores = false;
+    }
+
+    if (ImGui::BeginPopupModal("High Scores", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        auto scores = scoreBoard.getScores();
+        for (const auto& score : scores) {
+            ImGui::Text("%s: %d", score.name.c_str(), score.score);
+        }
+        if (ImGui::Button("Close")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
     // Rendering
     ImGui::Render();
     const float clear_color_with_alpha[4] = { BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w }; // Background color
@@ -288,7 +330,6 @@ void DrawThread::CreateRenderTarget() {
 void DrawThread::CleanupRenderTarget() {
     if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
 }
-
 
 LRESULT WINAPI DrawThread::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))

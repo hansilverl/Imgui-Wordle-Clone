@@ -6,9 +6,9 @@
 #include "../../shared/ImGuiSrc/backends/imgui_impl_win32.h"
 #include "../../shared/ImGuiSrc/backends/imgui_impl_dx11.h"
 #include "GameLogic.h"
+#include "ScoreBoard.h"
 #include "OnScreenKb.h"
 #include <memory>
-#include "ScoreBoard.h"
 
 
 // Forward declare message handler from imgui_impl_win32.cpp
@@ -29,11 +29,7 @@ private:
     IDXGISwapChain* g_pSwapChain;
     ID3D11RenderTargetView* g_mainRenderTargetView;
     OnScreenKeyboard onScreenKb;
-
-    ScoreBoard scoreManager{ "scores.txt" };
-    bool showScoreboard = false; // Flag to toggle scoreboard popup
-    bool showNamePopup = false;
-    char playerName[32] = ""; // To hold the player's name
+    ScoreBoard scoreBoard;
 
     bool CreateDeviceD3D();
     void CleanupDeviceD3D();
@@ -46,6 +42,10 @@ private:
     std::string errorMessage;
     bool showError = false;
     bool invalidWord = false;
+    char userName[50] = "";
+    bool showNamePopup = false;
 
     static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+    bool showScores = false;
+
 };
