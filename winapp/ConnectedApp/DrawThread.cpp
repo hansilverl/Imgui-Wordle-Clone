@@ -1,6 +1,6 @@
 #include "DrawThread.h"
-#include "ScoreBoard.h"
 #include <stdexcept>
+#include "Colors.h"
 
 DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     // Create application window
@@ -33,11 +33,17 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath, 49.0f);
     IM_ASSERT(font != nullptr);
 
+    // medium font for Keyboard:
+    io.Fonts->AddFontFromFileTTF(fontPath, 25.0f);
+    // Add a smaller font for the "Enter" button
+    io.Fonts->AddFontFromFileTTF(fontPath, 14.0f);
+    //Backspace font
+    io.Fonts->AddFontFromFileTTF("../../assets/CustomFont.ttf", 23.0f);
+
     // Setup style
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
-    colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // Background color #121213
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f);
+    colors[ImGuiCol_WindowBg] = BACKGROUND_COLOR; 
 
     // Register error callback
     game_logic.setOnErrorOccurred([this](const std::string& error) {
@@ -55,6 +61,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
         memset(inputBuffer, 0, sizeof(inputBuffer));
         });
 }
+
 
 DrawThread::~DrawThread() {
     ImGui_ImplDX11_Shutdown();
@@ -103,18 +110,20 @@ void DrawThread::RenderFrame() {
         for (const auto& letter : guess.letter_states) {
             ImVec4 color;
             if (letter.correct_position)
-                color = ImVec4(83.0f / 255.0f, 141.0f / 255.0f, 78.0f / 255.0f, 1.0f); // Green
+                color = GREEN_COLOR; // Use the defined green color
             else if (letter.in_word)
-                color = ImVec4(181.0f / 255.0f, 159.0f / 255.0f, 59.0f / 255.0f, 1.0f); // Yellow
+                color = YELLOW_COLOR; // Use the defined yellow color
             else
-                color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
+                color = WRONG_COLOR; // Use the defined gray color
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color); // Make hover the same color
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, color); // Make active the same color
             ImGui::PushStyleColor(ImGuiCol_Border, color); // Colored cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60));
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor(2);
+            ImGui::PopStyleColor(4);
             ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
@@ -126,7 +135,9 @@ void DrawThread::RenderFrame() {
     if (!game_logic.isGameOver() && currentRow < 6) {
         for (size_t i = 0; i < 5; ++i) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button (aka empty square)
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Active cell border
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
+            ImGui::PushStyleColor(ImGuiCol_Border, WRONG_COLOR); // Active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
                 ImGui::Button(std::string(1, inputBuffer[i]).c_str(), ImVec2(60, 60));
@@ -135,7 +146,7 @@ void DrawThread::RenderFrame() {
                 ImGui::Button(" ", ImVec2(60, 60));
             }
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor(2);
+            ImGui::PopStyleColor(4);
             ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
@@ -147,11 +158,13 @@ void DrawThread::RenderFrame() {
     for (size_t i = currentRow; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Empty cells border
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
+            ImGui::PushStyleColor(ImGuiCol_Border, WRONG_COLOR); // Empty cells border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(" ", ImVec2(60, 60)); // Adjust button size to fit the new board size
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor(2);
+            ImGui::PopStyleColor(4);
             ImGui::SameLine(0, 8); // Adjust the second parameter to change the spacing
         }
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
@@ -159,38 +172,6 @@ void DrawThread::RenderFrame() {
     }
 
     ImGui::End();
-
-    if (ImGui::Button("View Scoreboard")) {
-        showScoreboard = true;
-    }
-
-    // Scoreboard popup
-    if (showScoreboard) {
-        ImGui::OpenPopup("Scoreboard");
-    }
-
-    if (ImGui::BeginPopupModal("Scoreboard", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Scoreboard:");
-        ImGui::Separator();
-
-        // Fetch and display scores
-        try {
-            auto scores = scoreManager.getScores();
-            for (const auto& entry : scores) {
-                ImGui::Text("%s - %d", entry.name.c_str(), entry.score);
-            }
-        }
-        catch (const std::exception& e) {
-            ImGui::Text("Error loading scores: %s", e.what());
-        }
-
-        if (ImGui::Button("Close")) {
-            ImGui::CloseCurrentPopup();
-            showScoreboard = false;
-        }
-        ImGui::EndPopup();
-    }
-
 
     // Handle keyboard input
     if (!game_logic.isGameOver()) {
@@ -210,86 +191,18 @@ void DrawThread::RenderFrame() {
     }
 
     // Draw the on-screen keyboard
-    ImGui::SetNextWindowPos(ImVec2((displaySize.x - 600) * 0.5f, boardPos.y + boardSize.y));
-    //ImGui::SetNextWindowSize(ImVec2(700, 250));
-    ImGui::Begin("##OnScreenKeyboard", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
-
-    const char* keys1 = "QWERTYUIOP";
-    const char* keys2 = "ASDFGHJKL";
-    const char* keys3 = "ZXCVBNM";
-
-    // First row
-    for (int i = 0; i < strlen(keys1); ++i) {
-        if (ImGui::Button(std::string(1, keys1[i]).c_str(), ImVec2(50, 50))) {
-            if (strlen(inputBuffer) < 5) {
-                inputBuffer[strlen(inputBuffer)] = keys1[i];
-            }
-        }
-        if (i < strlen(keys1) - 1) ImGui::SameLine();
-    }
-    // Second row
-    ImGui::Dummy(ImVec2(25, 0)); // Add some padding to center the row
-    ImGui::SameLine();
-    for (int i = 0; i < strlen(keys2); ++i) {
-        if (ImGui::Button(std::string(1, keys2[i]).c_str(), ImVec2(50, 50))) {
-            if (strlen(inputBuffer) < 5) {
-                inputBuffer[strlen(inputBuffer)] = keys2[i];
-            }
-        }
-        if (i < strlen(keys2) - 1) ImGui::SameLine();
-    }
-    // Third row
-    if (ImGui::Button("ENTER", ImVec2(100, 50))) {
-        if (strlen(inputBuffer) == 5) {
-            if (!game_logic.submitGuess(inputBuffer)) {
-                invalidWord = true;
-            }
-        }
-    }
-    ImGui::SameLine();
-    for (int i = 0; i < strlen(keys3); ++i) {
-        if (ImGui::Button(std::string(1, keys3[i]).c_str(), ImVec2(50, 50))) {
-            if (strlen(inputBuffer) < 5) {
-                inputBuffer[strlen(inputBuffer)] = keys3[i];
-            }
-        }
-        if (i < strlen(keys3) - 1) ImGui::SameLine();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("BACKSPACE", ImVec2(100, 50))) {
-        if (strlen(inputBuffer) > 0) {
-            inputBuffer[strlen(inputBuffer) - 1] = '\0';
-        }
-    }
-
-    ImGui::End();
+    onScreenKb.Render(inputBuffer, invalidWord, game_logic, boardSize);
 
     // Game over message
     if (game_logic.isGameOver()) {
-        if (!showNamePopup) {
-            showNamePopup = true;
-        }
-
-        // Show popup for player name
-        ImGui::OpenPopup("Game Over!");
-        if (ImGui::BeginPopupModal("Game Over!", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::Text("Enter your name:");
-            ImGui::InputText("##PlayerName", playerName, IM_ARRAYSIZE(playerName));
-
-            if (ImGui::Button("Submit")) {
-                // Save score
-                int score = game_logic.getGuessHistory().size(); // Assuming guess count is the score
-                scoreManager.addScore(playerName, score);
-                ImGui::CloseCurrentPopup();
-                showNamePopup = false;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel")) {
-                ImGui::CloseCurrentPopup();
-                showNamePopup = false;
-            }
-            ImGui::EndPopup();
-        }
+        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 80));
+        ImGui::Begin("##GameOver", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
+        ImGui::TextColored(
+            game_logic.hasWon() ? GREEN_COLOR : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+            game_logic.hasWon() ? "Congratulations! You've won!" :
+            ("Game Over! The word was: " + game_logic.getCurrentAnswer()).c_str()
+        );
+        ImGui::End();
     }
 
     // Error popup
@@ -322,13 +235,12 @@ void DrawThread::RenderFrame() {
 
     // Rendering
     ImGui::Render();
-    const float clear_color_with_alpha[4] = { 0.07f, 0.07f, 0.08f, 1.00f }; // Background color #121213
+    const float clear_color_with_alpha[4] = { BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w }; // Background color
     g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
     g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     g_pSwapChain->Present(1, 0);
 }
-
 
 // Implementation of D3D initialization methods
 bool DrawThread::CreateDeviceD3D() {
