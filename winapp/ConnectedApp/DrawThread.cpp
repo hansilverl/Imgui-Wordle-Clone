@@ -44,7 +44,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic) {
     ImGui::StyleColorsDark();
     ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f); // Background color #121213
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.07f, 0.07f, 0.08f, 1.00f);
+
 
     // Register error callback
     game_logic.setOnErrorOccurred([this](const std::string& error) {
@@ -117,11 +117,13 @@ void DrawThread::RenderFrame() {
                 color = ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f); // Gray
 
             ImGui::PushStyleColor(ImGuiCol_Button, color);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color); // Make hover the same color
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, color); // Make active the same color
             ImGui::PushStyleColor(ImGuiCol_Border, color); // Colored cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(std::string(1, letter.letter).c_str(), ImVec2(60, 60));
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor(2);
+            ImGui::PopStyleColor(4);
             ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
@@ -133,6 +135,8 @@ void DrawThread::RenderFrame() {
     if (!game_logic.isGameOver() && currentRow < 6) {
         for (size_t i = 0; i < 5; ++i) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button (aka empty square)
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Active cell border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             if (i < strlen(inputBuffer)) {
@@ -142,7 +146,7 @@ void DrawThread::RenderFrame() {
                 ImGui::Button(" ", ImVec2(60, 60));
             }
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor(2);
+            ImGui::PopStyleColor(4);
             ImGui::SameLine(0, 8);
         }
         ImGui::NewLine();
@@ -154,11 +158,13 @@ void DrawThread::RenderFrame() {
     for (size_t i = currentRow; i < 6; i++) {
         for (int j = 0; j < 5; j++) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // Transparent button
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Transparent button hover
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0)); // Transparent button active
             ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(58.0f / 255.0f, 58.0f / 255.0f, 60.0f / 255.0f, 1.0f)); // Empty cells border
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
             ImGui::Button(" ", ImVec2(60, 60)); // Adjust button size to fit the new board size
             ImGui::PopStyleVar();
-            ImGui::PopStyleColor(2);
+            ImGui::PopStyleColor(4);
             ImGui::SameLine(0, 8); // Adjust the second parameter to change the spacing
         }
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + rowSpacing);
