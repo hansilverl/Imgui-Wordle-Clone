@@ -1,23 +1,24 @@
 #include "ScoreBoard.h"
 #include "Colors.h"
 
-ScoreBoard::ScoreBoard(const std::string& filePath) : filePath(filePath) {}
+ScoreBoard::ScoreBoard(const std::string& filePath) : filePath(filePath) {
+    loadFromFile();
+}
 
 void ScoreBoard::addScore(const std::string& name, int score) {
     if (!name.empty()) {
-        appendToFile({ name, score });
+        scores.push_back({ name, score });
+        std::sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
+            return a.score < b.score;
+            });
+        saveToFile();
     }
 }
 
 std::vector<ScoreEntry> ScoreBoard::getScores() const {
-    auto scores = loadFromFile();
-    // Sort scores from highest to lowest
-    std::sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
-        return a.score < b.score;
-        });
     // Return only the top 5 scores
     if (scores.size() > 5) {
-        scores.resize(5);
+        return std::vector<ScoreEntry>(scores.begin(), scores.begin() + 5);
     }
     return scores;
 }
@@ -30,11 +31,11 @@ void ScoreBoard::appendToFile(const ScoreEntry& entry) const {
     file << entry.name << "," << entry.score << "\n";
 }
 
-std::vector<ScoreEntry> ScoreBoard::loadFromFile() const {
-    std::vector<ScoreEntry> scores;
+void ScoreBoard::loadFromFile() const {
+    scores.clear();
     std::ifstream file(filePath);
     if (!file.is_open()) {
-        return scores; // Return empty if the file doesn't exist
+        return; // Return empty if the file doesn't exist
     }
     std::string line;
     while (std::getline(file, line)) {
@@ -45,7 +46,16 @@ std::vector<ScoreEntry> ScoreBoard::loadFromFile() const {
             scores.push_back({ name, score });
         }
     }
-    return scores;
+}
+
+void ScoreBoard::saveToFile() const {
+    std::ofstream file(filePath, std::ios_base::trunc);
+    if (!file.is_open()) {
+        throw std::runtime_error("Unable to open file for writing: " + filePath);
+    }
+    for (const auto& entry : scores) {
+        file << entry.name << "," << entry.score << "\n";
+    }
 }
 
 void ScoreBoard::renderHighScoresButton(ImVec2 displaySize) {

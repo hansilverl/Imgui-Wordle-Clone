@@ -25,8 +25,10 @@ public:
 private:
     std::string filePath;
     bool showScores = false;
+    mutable std::vector<ScoreEntry> scores;
     void appendToFile(const ScoreEntry& entry) const;
-    std::vector<ScoreEntry> loadFromFile() const;
+    void loadFromFile() const;
+    void saveToFile() const;
 };
 
 #endif // SCOREBOARD_H
