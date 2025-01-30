@@ -231,6 +231,8 @@ void DrawThread::RenderFrame() {
 
     if (ImGui::BeginPopupModal("Invalid Word", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Please try again.");
+        ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Add dummy space
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize("OK").x) * 0.5f);
         if (ImGui::Button("OK")) {
             ImGui::CloseCurrentPopup();
         }

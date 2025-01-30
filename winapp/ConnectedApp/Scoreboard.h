@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 #include "../../shared/ImGuiSrc/imgui.h"
 
 struct ScoreEntry {
@@ -24,7 +25,7 @@ public:
 private:
     std::string filePath;
     bool showScores = false;
-    void saveToFile(const std::vector<ScoreEntry>& scores) const;
+    void appendToFile(const ScoreEntry& entry) const;
     std::vector<ScoreEntry> loadFromFile() const;
 };
 

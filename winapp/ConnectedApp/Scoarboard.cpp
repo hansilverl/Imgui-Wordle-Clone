@@ -1,27 +1,27 @@
 #include "ScoreBoard.h"
 #include "Colors.h"
-#include <algorithm>
 
 ScoreBoard::ScoreBoard(const std::string& filePath) : filePath(filePath) {}
 
 void ScoreBoard::addScore(const std::string& name, int score) {
-    auto scores = loadFromFile();
-    scores.push_back({ name, score });
-    saveToFile(scores);
+    appendToFile({ name, score });
 }
 
 std::vector<ScoreEntry> ScoreBoard::getScores() const {
-    return loadFromFile();
+    auto scores = loadFromFile();
+    // Sort scores from lowest to highest
+    std::sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
+        return a.score < b.score;
+        });
+    return scores;
 }
 
-void ScoreBoard::saveToFile(const std::vector<ScoreEntry>& scores) const {
-    std::ofstream file(filePath);
+void ScoreBoard::appendToFile(const ScoreEntry& entry) const {
+    std::ofstream file(filePath, std::ios_base::app);
     if (!file.is_open()) {
         throw std::runtime_error("Unable to open file for writing: " + filePath);
     }
-    for (const auto& entry : scores) {
-        file << entry.name << "," << entry.score << "\n";
-    }
+    file << entry.name << "," << entry.score << "\n";
 }
 
 std::vector<ScoreEntry> ScoreBoard::loadFromFile() const {
@@ -65,20 +65,29 @@ void ScoreBoard::renderHighScoresPopup() {
     }
 
     if (ImGui::BeginPopupModal("High Scores", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::SetNextWindowSize(ImVec2(400, 300)); // Set a larger size for the window
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f)); // Dark background
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark border
+        ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Remove default top bar color
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // White text
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // Use the medium font
 
         auto scores = getScores();
+        ImGui::Text("High Scores");
+        ImGui::Separator();
+
+        // Render the scores in a table-like format
+        ImGui::Columns(2, "scores", true);
+        ImGui::Text("Name"); ImGui::NextColumn(); ImGui::Text("Score"); ImGui::NextColumn();
         ImGui::Separator();
 
         for (const auto& score : scores) {
-            ImGui::Text("%s", score.name.c_str());
+            ImGui::Text("%s", score.name.c_str()); ImGui::NextColumn(); ImGui::Text("%d", score.score); ImGui::NextColumn();
         }
+        ImGui::Columns(1);
 
         ImGui::PopFont();
-        ImGui::PopStyleColor(3); // Restore previous styles
+        ImGui::PopStyleColor(4); // Restore previous styles
 
         if (ImGui::Button("Close")) {
             ImGui::CloseCurrentPopup();
