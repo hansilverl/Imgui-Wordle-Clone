@@ -3,7 +3,7 @@
 ![image](https://github.com/user-attachments/assets/6e88bd17-fe55-4f8d-b3df-11cc39591778)
 
 
-This project is a clone of the popular word game Wordle[https://www.nytimes.com/games/wordle/index.html], implemented using ImGui for the user interface and a custom API for game logic.
+This project is a clone of the popular word game [Wordle](https://www.nytimes.com/games/wordle/index.html), implemented using ImGui for the user interface and a custom API for game logic.
 
 ## Features
 
@@ -110,10 +110,6 @@ If the guessed word is in the list but the guess is incorrect, the API response 
 - **imgui.ini**: ImGui configuration file.
 - **OnScreenKb.cpp/h**: Manages the on-screen keyboard rendering and interaction.
 - **Scoreboard.cpp/h**: Handles the rendering and management of the high scores.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
 
 ## Acknowledgments
 
