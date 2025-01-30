@@ -1,5 +1,7 @@
 
 # Imgui-Wordle-Clone
+![image](https://github.com/user-attachments/assets/6e88bd17-fe55-4f8d-b3df-11cc39591778)
+
 
 This project is a clone of the popular word game Wordle, implemented using ImGui for the user interface and a custom API for game logic.
 
