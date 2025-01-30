@@ -62,6 +62,7 @@ DrawThread::DrawThread(GameLogic& logic) : game_logic(logic), scoreBoard("scores
     game_logic.setOnGameStateChanged([this]() {
         memset(inputBuffer, 0, sizeof(inputBuffer));
         if (game_logic.hasWon()) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             showNamePopup = true;
         }
         });
@@ -199,7 +200,7 @@ void DrawThread::RenderFrame() {
 
     // Game over message
     if (game_logic.isGameOver()) {
-        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 300) * 0.5f, boardPos.y + boardSize.y + 80));
+        ImGui::SetNextWindowPos(ImVec2((displaySize.x - 600) * 0.5f, boardPos.y + boardSize.y + 180));
         ImGui::Begin("##GameOver", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
         ImGui::TextColored(
             game_logic.hasWon() ? GREEN_COLOR : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
@@ -231,7 +232,7 @@ void DrawThread::RenderFrame() {
 
     if (ImGui::BeginPopupModal("Invalid Word", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Please try again.");
-        ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Add dummy space
+        ImGui::Dummy(ImVec2(10.0f, 10.0f)); // Add dummy space
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize("OK").x) * 0.5f);
         if (ImGui::Button("OK")) {
             ImGui::CloseCurrentPopup();
@@ -240,13 +241,15 @@ void DrawThread::RenderFrame() {
     }
 
     // Ask for the user's name if the game is won
+
     if (showNamePopup) {
         ImGui::OpenPopup("Enter Name");
         showNamePopup = false;
     }
 
     if (ImGui::BeginPopupModal("Enter Name", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::InputText("Name", userName, IM_ARRAYSIZE(userName));
+        ImGui::InputText(" ", userName, IM_ARRAYSIZE(userName));
+        ImGui::Dummy(ImVec2(0.0f, 10.0f)); // Add dummy space
         if (ImGui::Button("OK")) {
             scoreBoard.addScore(std::string(userName), static_cast<int>(history.size()));
             ImGui::CloseCurrentPopup();

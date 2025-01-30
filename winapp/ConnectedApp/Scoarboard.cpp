@@ -11,10 +11,14 @@ void ScoreBoard::addScore(const std::string& name, int score) {
 
 std::vector<ScoreEntry> ScoreBoard::getScores() const {
     auto scores = loadFromFile();
-    // Sort scores from lowest to highest
+    // Sort scores from highest to lowest
     std::sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
-        return a.score < b.score;
+        return a.score > b.score;
         });
+    // Return only the top 5 scores
+    if (scores.size() > 5) {
+        scores.resize(5);
+    }
     return scores;
 }
 
@@ -75,6 +79,7 @@ void ScoreBoard::renderHighScoresPopup() {
 
         auto scores = getScores();
         ImGui::Text("High Scores");
+        ImGui::NewLine();
         ImGui::Separator();
 
         // Render the scores in a table-like format
@@ -89,10 +94,17 @@ void ScoreBoard::renderHighScoresPopup() {
 
         ImGui::PopFont();
         ImGui::PopStyleColor(3); // Restore previous styles
+        // Set 'x' button at top right corner
+        ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() - 40, 10));
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // Ensure the correct font is used
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // Set text color to white for contrast
 
-        if (ImGui::Button("x", ImVec2(50, 20))) {
+        if (ImGui::Button("x", ImVec2(30, 30))) {
             ImGui::CloseCurrentPopup();
         }
+
+        ImGui::PopStyleColor(); // Restore previous text color
+        ImGui::PopFont(); // Restore previous font
         ImGui::EndPopup();
     }
 }
