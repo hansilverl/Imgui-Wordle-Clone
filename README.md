@@ -111,10 +111,6 @@ If the guessed word is in the list but the guess is incorrect, the API response 
 - **OnScreenKb.cpp/h**: Manages the on-screen keyboard rendering and interaction.
 - **Scoreboard.cpp/h**: Handles the rendering and management of the high scores.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
-
 ## Acknowledgments
 
 - Wordle API by [MoofyWoofy](https://gitlab.com/MoofyWoofy/wordle-api)
