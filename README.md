@@ -3,14 +3,14 @@
 ![image](https://github.com/user-attachments/assets/6e88bd17-fe55-4f8d-b3df-11cc39591778)
 
 
-This project is a clone of the popular word game Wordle, implemented using ImGui for the user interface and a custom API for game logic.
+This project is a clone of the popular word game Wordle[https://www.nytimes.com/games/wordle/index.html], implemented using ImGui for the user interface and a custom API for game logic.
 
 ## Features
 
 - **Wordle API**: A simple API to host your own Wordle game.
 - **Custom Fonts**: Special fonts used for backspace and score icons based on FontAwesome.ttf.
 - **Leaderboard**: Display high scores in a styled window.
-- **Efficient File Handling**: Scores are appended to the file instead of rewriting the entire file.
+- **File Handling**: Scores are appended to the file instead of rewriting the entire file.
 
 ## Wordle API
 
@@ -121,5 +121,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - FontAwesome for the custom fonts
 - icons8 and svgrepo for the icons
 - Tophix for the font editing tool
+- Score System inspired by [Otaku-kun, A simple scoring scheme for Wordle](https://www.haibane.info/2022/01/12/a-simple-scoring-scheme-for-wordle)
 
 This `README.md` file provides a comprehensive overview of your project, including its features, usage instructions, custom fonts, important files, and acknowledgments. It is formatted with Markdown for better readability and presentation.
