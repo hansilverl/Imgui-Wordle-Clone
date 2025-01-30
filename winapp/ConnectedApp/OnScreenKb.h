@@ -16,6 +16,9 @@ private:
     void RenderRow(const char* keys, char* inputBuffer, bool& invalidWord, GameLogic& game_logic);
     void RenderEnterButton(char* inputBuffer, bool& invalidWord, GameLogic& game_logic);
     ImVec4 GetKeyColor(char key, const GameLogic& game_logic) const;
+    const char* keys1 = "QWERTYUIOP";
+    const char* keys2 = "ASDFGHJKL";
+    const char* keys3 = "ZXCVBNM";
    
 };
 

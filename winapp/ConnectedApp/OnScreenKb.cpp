@@ -34,9 +34,7 @@ ImVec4 OnScreenKeyboard::GetKeyColor(char key, const GameLogic& game_logic) cons
 }
 
 void OnScreenKeyboard::Render(char* inputBuffer, bool& invalidWord, GameLogic& game_logic, ImVec2 boardSize) {
-    const char* keys1 = "QWERTYUIOP";
-    const char* keys2 = "ASDFGHJKL";
-    const char* keys3 = "ZXCVBNM";
+
 
     ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 560) * 0.5f, boardSize.y + 20));
     ImGui::Begin("##OnScreenKeyboard", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground);
