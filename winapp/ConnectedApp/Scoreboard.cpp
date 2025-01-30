@@ -13,7 +13,7 @@ std::vector<ScoreEntry> ScoreBoard::getScores() const {
     auto scores = loadFromFile();
     // Sort scores from highest to lowest
     std::sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
-        return a.score > b.score;
+        return a.score < b.score;
         });
     // Return only the top 5 scores
     if (scores.size() > 5) {

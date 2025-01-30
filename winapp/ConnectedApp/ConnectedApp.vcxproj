@@ -141,7 +141,7 @@
     <ClCompile Include="DrawThread.cpp" />
     <ClCompile Include="GameLogic.cpp" />
     <ClCompile Include="OnScreenKb.cpp" />
-    <ClCompile Include="Scoarboard.cpp" />
+    <ClCompile Include="Scoreboard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ImGuiLib\ImGuiLib.vcxproj">
