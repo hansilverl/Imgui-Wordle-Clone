@@ -4,7 +4,9 @@
 ScoreBoard::ScoreBoard(const std::string& filePath) : filePath(filePath) {}
 
 void ScoreBoard::addScore(const std::string& name, int score) {
-    appendToFile({ name, score });
+    if (!name.empty()) {
+        appendToFile({ name, score });
+    }
 }
 
 std::vector<ScoreEntry> ScoreBoard::getScores() const {
@@ -64,11 +66,10 @@ void ScoreBoard::renderHighScoresPopup() {
         showScores = false;
     }
 
-    if (ImGui::BeginPopupModal("High Scores", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::SetNextWindowSize(ImVec2(400, 300)); // Set a larger size for the window
+    ImGui::SetNextWindowSize(ImVec2(400, 300)); // Set a larger size for the window
+    if (ImGui::BeginPopupModal("High Scores", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f)); // Dark background
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark border
-        ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Remove default top bar color
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // White text
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]); // Use the medium font
 
@@ -87,9 +88,9 @@ void ScoreBoard::renderHighScoresPopup() {
         ImGui::Columns(1);
 
         ImGui::PopFont();
-        ImGui::PopStyleColor(4); // Restore previous styles
+        ImGui::PopStyleColor(3); // Restore previous styles
 
-        if (ImGui::Button("Close")) {
+        if (ImGui::Button("x", ImVec2(50, 20))) {
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
